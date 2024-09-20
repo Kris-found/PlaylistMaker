@@ -14,8 +14,7 @@ class MediaLibraryActivity : AppCompatActivity() {
         val searchButtonBack = findViewById<ImageView>(R.id.arrow_back)
 
         searchButtonBack.setOnClickListener{
-            val arrowBackInMain = Intent(this, MainActivity::class.java)
-            startActivity(arrowBackInMain)
+            finish()
         }
 
 

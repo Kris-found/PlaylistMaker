@@ -1,76 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSecondary"
     android:orientation="vertical"
-    android:background="@color/dark_blue"
     android:paddingHorizontal="@dimen/main_horizontal_padding"
     android:paddingBottom="28dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:fontFamily="@font/ys_display_medium"
+        android:paddingTop="14dp"
         android:text="@string/app_name"
         android:textColor="@color/white"
+        android:textFontWeight="500"
         android:textSize="@dimen/head_text_size"
-        android:paddingTop="14dp"
-        android:textStyle="bold"
-        android:layout_marginBottom="40dp"/>
+        android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/search_button"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:textAllCaps="false"
-            android:text="@string/search"
-            android:textColor="@color/black"
-            android:textSize="@dimen/head_text_size"
-            android:foreground="?attr/selectableItemBackground"
-            app:cornerRadius="@dimen/button_radius"
-            app:icon="@drawable/search_vector"
-            app:iconTint="@color/black"
-            app:iconGravity="textStart"
-            app:iconPadding="@dimen/icon_padding" />
+    <Button
+        android:id="@+id/search_button"
+        style="@style/MainButtonStyle"
+        android:text="@string/search"
+        app:icon="@drawable/search_vector" />
 
-        <Button
-            android:id="@+id/media_button"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:layout_marginTop="@dimen/button_padding"
-            android:layout_marginBottom="@dimen/button_padding"
-            android:textAllCaps="false"
-            android:text="@string/media_lib"
-            android:textColor="@color/black"
-            android:textSize="@dimen/head_text_size"
-            android:foreground="?attr/selectableItemBackground"
-            app:cornerRadius="@dimen/button_radius"
-            app:icon="@drawable/library_vector"
-            app:iconTint="@color/black"
-            app:iconGravity="textStart"
-            app:iconPadding="@dimen/icon_padding" />
+    <Button
+        android:id="@+id/media_button"
+        style="@style/MainButtonStyle"
+        android:layout_marginTop="@dimen/button_padding"
+        android:layout_marginBottom="@dimen/button_padding"
+        android:text="@string/media_lib"
+        app:icon="@drawable/library_vector" />
 
-        <Button
-            android:id="@+id/settings_button"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:textAllCaps="false"
-            android:text="@string/settings"
-            android:textColor="@color/black"
-            android:textSize="@dimen/head_text_size"
-            android:foreground="?attr/selectableItemBackground"
-            app:cornerRadius="@dimen/button_radius"
-            app:icon="@drawable/setting_vector"
-            app:iconTint="@color/black"
-            app:iconGravity="textStart"
-            app:iconPadding="@dimen/icon_padding"/>
+    <Button
+        android:id="@+id/settings_button"
+        style="@style/MainButtonStyle"
+        android:text="@string/settings"
+        app:icon="@drawable/setting_vector" />
 
 </LinearLayout>
