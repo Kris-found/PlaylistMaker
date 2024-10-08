@@ -1,27 +1,27 @@
 package com.practicum.playlistmaker
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 
 class MediaLibraryActivity : AppCompatActivity() {
+
+    private val imageUrl = "https://img.freepik.com/free-vector/open-blue-book-white_1308-69339.jpg"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
         setContentView(R.layout.activity_media_library)
 
-        val searchButtonBack = findViewById<ImageView>(R.id.arrow_back)
+        val searchButtonBack = findViewById<ImageView>(R.id.arrowBack)
+        val image = findViewById<ImageView>(R.id.image)
 
         searchButtonBack.setOnClickListener{
             finish()
         }
 
-
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
+        Glide.with(applicationContext)
+            .load(imageUrl)
+            .into(image)
     }
 }

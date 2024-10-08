@@ -7,53 +7,50 @@
     android:orientation="vertical"
     tools:context=".SearchActivity">
 
-    <LinearLayout
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/arrowBack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        app:navigationIcon="@drawable/arrow_back"
+        app:navigationIconTint="?attr/colorPrimaryVariant"
+        app:title="@string/search"
+        app:titleTextAppearance="@style/Header"
+        app:titleTextColor="?attr/colorPrimaryVariant" />
 
-        <ImageView
-            android:id="@+id/arrow_back"
-            style="@style/HeaderArrowBack" />
-
-        <TextView
-            style="@style/HeaderText"
-            android:text="@string/search" />
-    </LinearLayout>
 
     <FrameLayout
+        style="@style/SearchBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
         android:minHeight="52dp">
 
-        <LinearLayout
-            android:id="@+id/container"
-            style="@style/SearchBackground"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="8dp"
-            android:orientation="horizontal">
+        <EditText
+            android:id="@+id/inputEditText"
+            style="@style/SearchBarEditText"
+            android:drawableStart="@drawable/search_vector"
+            android:drawablePadding="8dp"
+            android:paddingHorizontal="12dp" />
 
-            <ImageView
-                style="@style/SearchBarIcon"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/search_vector" />
-
-            <EditText
-                android:id="@+id/inputEditText"
-                style="@style/SearchBarEditText" />
-
-            <ImageView
-                android:id="@+id/clearIcon"
-                style="@style/SearchBarIcon"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/clear"
-                android:visibility="gone" />
-
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/clearIcon"
+            style="@style/SearchBarIcon"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/clear"
+            android:visibility="gone" />
 
     </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSearchTrackList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="10"
+        tools:listitem="@layout/search_track_view" />
 
 </LinearLayout>
