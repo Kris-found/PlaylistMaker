@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +14,8 @@ class MainActivity : AppCompatActivity() {
 
         //Поиск
 
-        val searchButton = findViewById<Button>(R.id.search_button)
+        val searchButton = findViewById<Button>(R.id.searchButton)
+
 
         val searchClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         //Медиатека
 
-        val mediaLibraryButton = findViewById<Button>(R.id.media_button)
+        val mediaLibraryButton = findViewById<Button>(R.id.mediaButton)
 
         mediaLibraryButton.setOnClickListener {
             val mediaLibraryIntent = Intent(this, MediaLibraryActivity::class.java)
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         //Настройки
 
-        val settingsButton = findViewById<Button>(R.id.settings_button)
+        val settingsButton = findViewById<Button>(R.id.settingsButton)
 
         settingsButton.setOnClickListener {
             val settingsIntent = Intent(this, SettingsActivity::class.java)

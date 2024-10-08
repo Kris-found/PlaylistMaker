@@ -22,13 +22,13 @@
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/search_button"
+        android:id="@+id/searchButton"
         style="@style/MainButtonStyle"
         android:text="@string/search"
         app:icon="@drawable/search_vector" />
 
     <Button
-        android:id="@+id/media_button"
+        android:id="@+id/mediaButton"
         style="@style/MainButtonStyle"
         android:layout_marginTop="@dimen/button_padding"
         android:layout_marginBottom="@dimen/button_padding"
@@ -36,7 +36,7 @@
         app:icon="@drawable/library_vector" />
 
     <Button
-        android:id="@+id/settings_button"
+        android:id="@+id/settingsButton"
         style="@style/MainButtonStyle"
         android:text="@string/settings"
         app:icon="@drawable/setting_vector" />
