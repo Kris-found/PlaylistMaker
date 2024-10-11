@@ -39,7 +39,8 @@
             style="@style/SearchBarIcon"
             android:layout_marginEnd="16dp"
             android:src="@drawable/clear"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:layout_gravity ="center_vertical|end"/>
 
     </FrameLayout>
 
