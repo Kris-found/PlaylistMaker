@@ -7,99 +7,45 @@
     android:orientation="vertical"
     tools:context=".SettingsActivity">
 
-
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/arrowBack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        app:navigationIcon="@drawable/arrow_back"
+        app:navigationIconTint="?attr/colorPrimaryVariant"
+        app:title="@string/settings"
+        app:titleTextAppearance="@style/Header"
+        app:titleTextColor="?attr/colorPrimaryVariant" />
 
-        <ImageView
-            android:id="@+id/arrow_back"
-            style="@style/HeaderArrowBack" />
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchTheme"
+        style="@style/TextInSettingsStyle"
+        android:layout_gravity="center_vertical"
+        android:text="@string/dark_theme"
+        android:thumbTintMode="screen"
+        app:thumbTint="?attr/colorSecondaryVariant"
+        app:trackTint="?attr/colorSecondaryVariant" />
 
-        <TextView
-            style="@style/HeaderText"
-            android:text="@string/settings" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/shareApp"
+        style="@style/TextInSettingsStyle"
+        android:drawableEnd="@drawable/share"
+        android:drawableTint="?attr/colorOnSecondary"
+        android:text="@string/share_app" />
 
-    </LinearLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/writeToSupport"
+        style="@style/TextInSettingsStyle"
+        android:drawableEnd="@drawable/support"
+        android:drawableTint="?attr/colorOnSecondary"
+        android:text="@string/support" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="24dp"
-        android:orientation="vertical"
-        android:paddingStart="@dimen/main_horizontal_padding">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                style="@style/TextInSettingsStyle"
-                android:text="@string/dark_theme" />
-
-
-            <Switch
-                android:id="@+id/switchTheme"
-                style="@style/IconForTextInSettingsStyle"
-                android:layout_marginEnd="4dp"
-                android:thumbTint="?attr/colorSecondaryVariant"
-                android:trackTint="?attr/colorSecondaryVariant" />
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/share_App"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:foreground="?attr/selectableItemBackground">
-
-            <TextView
-                style="@style/TextInSettingsStyle"
-                android:text="@string/share_app" />
-
-            <ImageView
-                style="@style/IconForTextInSettingsStyle"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/share" />
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/write_to_support"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:foreground="?attr/selectableItemBackground">
-
-            <TextView
-                style="@style/TextInSettingsStyle"
-                android:text="@string/support" />
-
-            <ImageView
-                style="@style/IconForTextInSettingsStyle"
-                android:layout_marginEnd="14dp"
-                android:src="@drawable/support" />
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/agreement"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:foreground="?attr/selectableItemBackground">
-
-            <TextView
-                style="@style/TextInSettingsStyle"
-                android:text="@string/user_agreement" />
-
-            <ImageView
-                style="@style/IconForTextInSettingsStyle"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="20dp"
-                android:src="@drawable/arrow_forward" />
-
-        </FrameLayout>
-
-    </LinearLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/agreement"
+        style="@style/TextInSettingsStyle"
+        android:layout_marginEnd="4dp"
+        android:drawableEnd="@drawable/arrow_forward"
+        android:drawableTint="?attr/colorOnSecondary"
+        android:text="@string/user_agreement" />
 
 </LinearLayout>
