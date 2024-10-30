@@ -3,11 +3,11 @@ package com.practicum.playlistmaker
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.textview.MaterialTextView
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -16,13 +16,13 @@ class SettingsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_settings)
 
-        val arrowBackButtonInSettings = findViewById<ImageView>(R.id.arrow_back)
-        val buttonSwitch = findViewById<Switch>(R.id.switchTheme)
-        val buttonShareApp = findViewById<FrameLayout>(R.id.share_App)
-        val buttonWriteToSupport = findViewById<FrameLayout>(R.id.write_to_support)
-        val buttonAgreement = findViewById<FrameLayout>(R.id.agreement)
+        val arrowBackButtonInSettings = findViewById<MaterialToolbar>(R.id.arrowBack)
+        val buttonSwitch = findViewById<SwitchMaterial>(R.id.switchTheme)
+        val buttonShareApp = findViewById<MaterialTextView>(R.id.shareApp)
+        val buttonWriteToSupport = findViewById<MaterialTextView>(R.id.writeToSupport)
+        val buttonAgreement = findViewById<MaterialTextView>(R.id.agreement)
 
-        arrowBackButtonInSettings.setOnClickListener {
+        arrowBackButtonInSettings.setNavigationOnClickListener {
             finish()
         }
 
@@ -40,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
             val shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = "text/plain"
             shareIntent.putExtra(Intent.EXTRA_TEXT, linkApp)
+
             startActivity(Intent.createChooser(shareIntent, title))
         }
 
