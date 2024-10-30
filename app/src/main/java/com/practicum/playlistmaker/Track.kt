@@ -11,8 +11,5 @@ data class Track(
     val artworkUrl100: String
 ) {
     val formattedTrackTime: String
-        get() {
-            Log.d("Track", "trackTimeMillis: $trackTimeMillis")
-            return SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
-        }
+        get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
 }

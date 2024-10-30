@@ -114,8 +114,6 @@ class SearchActivity : AppCompatActivity() {
                     if (response.body()?.resultCount!! > 0){
                         showPlaceholder("")
                         trackList.addAll(response.body()?.results!!)
-//                            for (track in trackList) {
-//                            Log.d("Track", "${track.trackName} - ${track.artistName} - ${track.formattedTrackTime}")}
                     } else{
                         showPlaceholder("empty")
                     }
@@ -132,11 +130,6 @@ class SearchActivity : AppCompatActivity() {
             }
         })
     }
-
-//        fun getFormatTrackTime(trackTimeMillis: Long): String {
-//            val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
-//            return dateFormat.format(trackTimeMillis)
-//        }
 
     private fun showPlaceholder(state: String) {
 
