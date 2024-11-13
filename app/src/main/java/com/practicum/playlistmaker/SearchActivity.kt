@@ -1,6 +1,8 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -33,16 +35,25 @@ class SearchActivity : AppCompatActivity() {
 
     private val iTunesService = retrofit.create(ITunesSearchAPI::class.java)
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var rvForSearchTrack: RecyclerView
     private lateinit var arrowBackButton: MaterialToolbar
     private lateinit var queryInput: EditText
     private lateinit var clearButton: ImageView
     private lateinit var editText: EditText
     private lateinit var refreshButton:Button
 
-    private val trackList = ArrayList<Track>()
+    private lateinit var lLHistorySearch: LinearLayout
+    private lateinit var btnClearHistory: Button
 
-    private val adapter = TrackAdapter(trackList)
+    private lateinit var rvForHistoryTrack: RecyclerView
+    private lateinit var searchHistory: SearchHistory
+    private lateinit var listener: OnSharedPreferenceChangeListener
+    private lateinit var sharedPreferences: SharedPreferences
+
+    private lateinit var searchAdapter: TrackAdapter
+    private lateinit var historyAdapter: TrackAdapter
+
+    private val trackList = ArrayList<Track>()
 
     private var savedQuery: String = ""
 
@@ -50,14 +61,47 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        recyclerView = findViewById(R.id.rvSearchTrackList)
+        rvForSearchTrack = findViewById(R.id.rvSearchTrackList)
+        rvForHistoryTrack = findViewById(R.id.rvForHistoryTrack)
+
         arrowBackButton = findViewById(R.id.arrowBack)
         queryInput = findViewById(R.id.queryInput)
         clearButton = findViewById(R.id.clearIcon)
         refreshButton = findViewById(R.id.refreshButton)
 
-        recyclerView.adapter = adapter
+        lLHistorySearch = findViewById(R.id.lLHistory)
+        btnClearHistory = findViewById(R.id.btnClearHistory)
 
+        searchAdapter = TrackAdapter(trackList){
+            searchHistory.addTrackToHistory(it)
+        }
+
+        sharedPreferences = getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE)
+        searchHistory = SearchHistory(sharedPreferences)
+
+        val historyTrackList = searchHistory.getHistoryTrack()
+
+        rvForSearchTrack.adapter = searchAdapter
+
+        historyAdapter = TrackAdapter(historyTrackList){
+            searchHistory.addTrackToHistory(it)
+        }
+        rvForHistoryTrack.adapter = historyAdapter
+
+        updateHistoryRecyclerView()
+
+        listener = OnSharedPreferenceChangeListener { _, key ->
+            if (key == TRACK_HISTORY_KEY){
+                updateHistoryRecyclerView()
+            }
+        }
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+
+        btnClearHistory.setOnClickListener {
+            searchHistory.clearHistory()
+            historyAdapter.notifyDataSetChanged()
+            lLHistorySearch.visibility = View.GONE
+        }
 
         arrowBackButton.setNavigationOnClickListener {
             finish()
@@ -76,7 +120,8 @@ class SearchActivity : AppCompatActivity() {
         clearButton.setOnClickListener {
             queryInput.setText("")
             trackList.clear()
-            adapter.notifyDataSetChanged()
+            searchAdapter.notifyDataSetChanged()
+            updateHistoryRecyclerView()
             val inputMethodManager =
                 getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(clearButton.windowToken, 0)
@@ -84,6 +129,10 @@ class SearchActivity : AppCompatActivity() {
 
         refreshButton.setOnClickListener {
             makeSearch()
+        }
+
+        queryInput.setOnFocusChangeListener { view, hasFocus ->
+            lLHistorySearch.visibility = if (hasFocus && queryInput.text.isEmpty() && historyTrackList.isNotEmpty()) View.VISIBLE else View.GONE
         }
 
         val textWatcher = object : TextWatcher {
@@ -95,6 +144,7 @@ class SearchActivity : AppCompatActivity() {
                 if(queryInput.text.isEmpty()){
                     trackList.clear()
                 }
+                lLHistorySearch.visibility = if (queryInput.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -102,6 +152,13 @@ class SearchActivity : AppCompatActivity() {
             }
         }
         queryInput.addTextChangedListener(textWatcher)
+
+    }
+    private fun updateHistoryRecyclerView() {
+        val historyTrackList = searchHistory.getHistoryTrack()
+        historyAdapter.updateData(historyTrackList)
+        lLHistorySearch.visibility = if(historyTrackList.isEmpty()) View.GONE else View.VISIBLE
+        rvForSearchTrack.visibility = View.GONE
     }
 
     private fun makeSearch(){
@@ -140,12 +197,12 @@ class SearchActivity : AppCompatActivity() {
         val errorMessage = "${getString(R.string.error_no_connection)}\n\n${getString(R.string.download_failed)}"
 
         trackList.clear()
-        adapter.notifyDataSetChanged()
+        searchAdapter.notifyDataSetChanged()
 
         when(state) {
             "empty" -> {
                 layoutPlaceholderError.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
+                rvForSearchTrack.visibility = View.GONE
                 refreshButton.visibility = View.GONE
                 placeholderImage.setImageResource(R.drawable.error_search)
                 placeholderMessage.text = getString(R.string.error_search_empty)
@@ -153,13 +210,13 @@ class SearchActivity : AppCompatActivity() {
             "no_connection" -> {
                 layoutPlaceholderError.visibility = View.VISIBLE
                 refreshButton.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
+                rvForSearchTrack.visibility = View.GONE
                 placeholderImage.setImageResource(R.drawable.error_internet)
                 placeholderMessage.text = errorMessage
             }
             else -> {
                 layoutPlaceholderError.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
+                rvForSearchTrack.visibility = View.VISIBLE
             }
         }
     }

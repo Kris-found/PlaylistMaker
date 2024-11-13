@@ -98,7 +98,15 @@
         android:layout_weight="1"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="10"
+        tools:itemCount="5"
         tools:listitem="@layout/search_track_view" />
+
+    <include
+        android:id="@+id/lLHistory"
+        layout="@layout/history_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:visibility="gone"/>
 
 </LinearLayout>
