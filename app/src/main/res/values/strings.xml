@@ -16,4 +16,9 @@
     <string name="emailSupport">adora.i638@gmail.com</string>
     <string name="titleShareApp">Поделиться приложением</string>
 
+    <string name="error_search_empty">Ничего не нашлось</string>
+    <string name="error_no_connection">Проблемы со связью</string>
+    <string name="download_failed">Загрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="refresh">Обновить</string>
+
 </resources>

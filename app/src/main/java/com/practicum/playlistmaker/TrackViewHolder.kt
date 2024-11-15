@@ -27,7 +27,7 @@ class TrackViewHolder(parent: ViewGroup):
 
         tvTrackName.text = model.trackName
         tvArtistName.text = model.artistName
-        tvTrackTime.text = model.trackTime
+        tvTrackTime.text = model.formattedTrackTime
         tvArtistName.requestLayout()
         tvTrackTime.requestLayout()
     }
