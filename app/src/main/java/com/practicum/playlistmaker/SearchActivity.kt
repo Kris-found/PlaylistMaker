@@ -35,23 +35,21 @@ class SearchActivity : AppCompatActivity() {
 
     private val iTunesService = retrofit.create(ITunesSearchAPI::class.java)
 
-    private lateinit var rvForSearchTrack: RecyclerView
     private lateinit var arrowBackButton: MaterialToolbar
     private lateinit var queryInput: EditText
     private lateinit var clearButton: ImageView
     private lateinit var editText: EditText
     private lateinit var refreshButton:Button
 
-    private lateinit var lLHistorySearch: LinearLayout
     private lateinit var btnClearHistory: Button
+    private lateinit var tvSearchHistory: TextView
 
-    private lateinit var rvForHistoryTrack: RecyclerView
     private lateinit var searchHistory: SearchHistory
     private lateinit var listener: OnSharedPreferenceChangeListener
     private lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var searchAdapter: TrackAdapter
-    private lateinit var historyAdapter: TrackAdapter
+    private lateinit var rvForSearchTrack: RecyclerView
 
     private val trackList = ArrayList<Track>()
 
@@ -62,17 +60,16 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_search)
 
         rvForSearchTrack = findViewById(R.id.rvSearchTrackList)
-        rvForHistoryTrack = findViewById(R.id.rvForHistoryTrack)
 
         arrowBackButton = findViewById(R.id.arrowBack)
         queryInput = findViewById(R.id.queryInput)
         clearButton = findViewById(R.id.clearIcon)
         refreshButton = findViewById(R.id.refreshButton)
 
-        lLHistorySearch = findViewById(R.id.lLHistory)
+        tvSearchHistory = findViewById(R.id.tvSearchHistory)
         btnClearHistory = findViewById(R.id.btnClearHistory)
 
-        searchAdapter = TrackAdapter(trackList){
+        searchAdapter = TrackAdapter(ArrayList()){
             searchHistory.addTrackToHistory(it)
         }
 
@@ -82,11 +79,6 @@ class SearchActivity : AppCompatActivity() {
         val historyTrackList = searchHistory.getHistoryTrack()
 
         rvForSearchTrack.adapter = searchAdapter
-
-        historyAdapter = TrackAdapter(historyTrackList){
-            searchHistory.addTrackToHistory(it)
-        }
-        rvForHistoryTrack.adapter = historyAdapter
 
         updateHistoryRecyclerView()
 
@@ -99,8 +91,9 @@ class SearchActivity : AppCompatActivity() {
 
         btnClearHistory.setOnClickListener {
             searchHistory.clearHistory()
-            historyAdapter.notifyDataSetChanged()
-            lLHistorySearch.visibility = View.GONE
+            historyTrackList.clear()
+            updateHistoryRecyclerView()
+            rvForSearchTrack.setVisibility(false)
         }
 
         arrowBackButton.setNavigationOnClickListener {
@@ -131,34 +124,45 @@ class SearchActivity : AppCompatActivity() {
             makeSearch()
         }
 
-        queryInput.setOnFocusChangeListener { view, hasFocus ->
-            lLHistorySearch.visibility = if (hasFocus && queryInput.text.isEmpty() && historyTrackList.isNotEmpty()) View.VISIBLE else View.GONE
+        queryInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && queryInput.text.isEmpty()) {
+                updateHistoryRecyclerView()
+            } else {
+                historyVisibilityView(ViewVisibility.GONE)}
         }
 
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 clearButton.visibility = clearButtonVisibility(s)
                 if(queryInput.text.isEmpty()){
                     trackList.clear()
                 }
-                lLHistorySearch.visibility = if (queryInput.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
+                if (queryInput.hasFocus() && s?.isEmpty() == true) {
+                    updateHistoryRecyclerView()
+                    showPlaceholder(SearchState.EmptyInput)
+                    } else {
+                        historyVisibilityView(ViewVisibility.GONE)
+                        rvForSearchTrack.setVisibility(false)
+                    }
             }
-
             override fun afterTextChanged(s: Editable?) {
                 savedQuery = s.toString()
             }
         }
         queryInput.addTextChangedListener(textWatcher)
-
     }
+
     private fun updateHistoryRecyclerView() {
         val historyTrackList = searchHistory.getHistoryTrack()
-        historyAdapter.updateData(historyTrackList)
-        lLHistorySearch.visibility = if(historyTrackList.isEmpty()) View.GONE else View.VISIBLE
-        rvForSearchTrack.visibility = View.GONE
+        if (historyTrackList.isNotEmpty() && queryInput.text.isEmpty()){
+            searchAdapter.updateData(historyTrackList)
+            historyVisibilityView(ViewVisibility.VISIBLE)
+            rvForSearchTrack.setVisibility(true)
+        } else {
+            historyVisibilityView(ViewVisibility.GONE)
+        }
     }
 
     private fun makeSearch(){
@@ -169,27 +173,27 @@ class SearchActivity : AppCompatActivity() {
             ) {
                 if (response.code() == 200) {
                     if (response.body()?.resultCount!! > 0){
-                        showPlaceholder("")
+                        showPlaceholder(SearchState.Success)
                         trackList.addAll(response.body()?.results!!)
+                        searchAdapter.updateData(trackList)
                     } else{
-                        showPlaceholder("empty")
+                        showPlaceholder(SearchState.Empty)
                     }
                 } else {
-                    showPlaceholder("no_connection")
+                    showPlaceholder(SearchState.NoConnection)
                     Toast.makeText( applicationContext,"Error: ${response.code()}", Toast.LENGTH_SHORT)
                         .show()
                 }
             }
             override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
-                showPlaceholder("no_connection")
+                showPlaceholder(SearchState.NoConnection)
                 Toast.makeText(applicationContext, "Error: ${t.message}", Toast.LENGTH_SHORT)
                     .show()
             }
         })
     }
 
-    private fun showPlaceholder(state: String) {
-
+    private fun showPlaceholder(state: SearchState) {
         val layoutPlaceholderError = findViewById<LinearLayout>(R.id.layoutPlaceholderError)
         val placeholderImage = findViewById<ImageView>(R.id.placeholderImage)
         val placeholderMessage = findViewById<TextView>(R.id.placeholderMessage)
@@ -200,32 +204,54 @@ class SearchActivity : AppCompatActivity() {
         searchAdapter.notifyDataSetChanged()
 
         when(state) {
-            "empty" -> {
-                layoutPlaceholderError.visibility = View.VISIBLE
-                rvForSearchTrack.visibility = View.GONE
-                refreshButton.visibility = View.GONE
+            SearchState.Empty -> {
+                layoutPlaceholderError.setVisibility(true)
+                rvForSearchTrack.setVisibility(false)
+                refreshButton.setVisibility(false)
                 placeholderImage.setImageResource(R.drawable.error_search)
                 placeholderMessage.text = getString(R.string.error_search_empty)
             }
-            "no_connection" -> {
-                layoutPlaceholderError.visibility = View.VISIBLE
-                refreshButton.visibility = View.VISIBLE
-                rvForSearchTrack.visibility = View.GONE
+            SearchState.NoConnection -> {
+                layoutPlaceholderError.setVisibility(true)
+                refreshButton.setVisibility(true)
+                rvForSearchTrack.setVisibility(false)
                 placeholderImage.setImageResource(R.drawable.error_internet)
                 placeholderMessage.text = errorMessage
             }
-            else -> {
-                layoutPlaceholderError.visibility = View.GONE
-                rvForSearchTrack.visibility = View.VISIBLE
+            SearchState.Success -> {
+                layoutPlaceholderError.setVisibility(false)
+                rvForSearchTrack.setVisibility(true)
+            }
+            SearchState.EmptyInput -> {
+                layoutPlaceholderError.setVisibility(false)
             }
         }
     }
+
     private fun clearButtonVisibility(s: CharSequence?): Int {
         return if (s.isNullOrEmpty()) {
             View.GONE
         } else {
             View.VISIBLE
         }
+    }
+
+    private fun historyVisibilityView(state: ViewVisibility){
+        when(state){
+            ViewVisibility.VISIBLE -> {
+                btnClearHistory.setVisibility(true)
+                tvSearchHistory.setVisibility(true)
+            }
+
+            ViewVisibility.GONE -> {
+                btnClearHistory.setVisibility(false)
+                tvSearchHistory.setVisibility(false)
+            }
+        }
+    }
+
+    private fun View.setVisibility(visible: Boolean){
+        visibility = if(visible) View.VISIBLE else View.GONE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -239,6 +265,20 @@ class SearchActivity : AppCompatActivity() {
         editText.setText(savedQuery)
     }
 }
+
+enum class ViewVisibility {
+    VISIBLE,
+    GONE
+}
+
+sealed interface SearchState {
+    data object Empty: SearchState
+    data object NoConnection: SearchState
+    data object Success: SearchState
+    data object EmptyInput: SearchState
+}
+
+
 
 
 

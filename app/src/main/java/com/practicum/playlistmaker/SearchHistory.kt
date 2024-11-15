@@ -1,8 +1,10 @@
 package com.practicum.playlistmaker
 
-import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+
+const val TRACK_HISTORY_KEY = "key_for_history_search"
+const val SEARCH_HISTORY_PREFERENCES = "search_history"
 
 class SearchHistory(private val sharedPreferences: SharedPreferences) {
 
@@ -14,7 +16,7 @@ class SearchHistory(private val sharedPreferences: SharedPreferences) {
 
     fun clearHistory(){
         sharedPreferences.edit()
-            .remove(TRACK_HISTORY_KEY)
+            .clear()
             .apply()
     }
 
@@ -35,10 +37,8 @@ class SearchHistory(private val sharedPreferences: SharedPreferences) {
 
         saveTrackToHistory(ArrayList(history))
     }
+
+    companion object {
+        const val MAX_LIMIT_SONGS = 10
+    }
 }
-
-
-const val TRACK_HISTORY_KEY = "key_for_history_search"
-const val SEARCH_HISTORY_PREFERENCES = "search_history"
-const val SEARCH_TRACK_KEY = "key_for_history_track_touch"
-const val MAX_LIMIT_SONGS = 10
