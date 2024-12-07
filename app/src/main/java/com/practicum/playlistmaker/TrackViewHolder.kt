@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
@@ -15,7 +14,7 @@ class TrackViewHolder(parent: ViewGroup):
     private val ivCoverTrack = itemView.findViewById<ImageView>(R.id.ivCoverTrack)
     private val tvTrackName = itemView.findViewById<TextView>(R.id.tvTrackName)
     private val tvArtistName = itemView.findViewById<TextView>(R.id.tvArtistName)
-    private val tvTrackTime = itemView.findViewById<TextView>(R.id.tvTrackTime)
+    private val tvTrackTime = itemView.findViewById<TextView>(R.id.tvTrackDuration)
 
     fun bind (model: Track){
         Glide.with(itemView)

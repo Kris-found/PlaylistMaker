@@ -22,9 +22,7 @@
         style="@style/TextInSettingsStyle"
         android:layout_gravity="center_vertical"
         android:text="@string/dark_theme"
-        android:thumbTintMode="screen"
-        app:thumbTint="?attr/colorSecondaryVariant"
-        app:trackTint="?attr/colorSecondaryVariant" />
+        android:thumbTintMode="screen" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/shareApp"

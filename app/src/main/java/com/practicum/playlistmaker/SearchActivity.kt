@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
@@ -63,6 +64,7 @@ class SearchActivity : AppCompatActivity() {
 
         arrowBackButton = findViewById(R.id.arrowBack)
         queryInput = findViewById(R.id.queryInput)
+        editText = findViewById(R.id.queryInput)
         clearButton = findViewById(R.id.clearIcon)
         refreshButton = findViewById(R.id.refreshButton)
 
@@ -71,6 +73,12 @@ class SearchActivity : AppCompatActivity() {
 
         searchAdapter = TrackAdapter(ArrayList()){
             searchHistory.addTrackToHistory(it)
+
+            val audioPlayerIntent = Intent(this, AudioPlayerActivity::class.java).apply {
+                putExtra("TRACK", it)
+            }
+
+            startActivity(audioPlayerIntent)
         }
 
         sharedPreferences = getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE)

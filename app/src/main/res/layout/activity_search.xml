@@ -33,7 +33,8 @@
             android:drawablePadding="8dp"
             android:imeOptions="actionDone"
             android:paddingHorizontal="12dp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:textCursorDrawable="@color/dark_blue" />
 
         <ImageView
             android:id="@+id/clearIcon"
