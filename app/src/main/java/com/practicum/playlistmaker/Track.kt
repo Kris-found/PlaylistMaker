@@ -16,10 +16,12 @@ data class Track(
     val releaseDate: String,
     val primaryGenreName: String,
     val country: String,
-): Parcelable {
+    val previewUrl: String,
+) : Parcelable {
     val formattedTrackTime: String
         get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
 
     val getCoverArtwork: String
         get() = artworkUrl100.replaceAfterLast("/", "512x512bb.jpg")
+
 }

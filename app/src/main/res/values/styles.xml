@@ -95,4 +95,18 @@
         <item name="android:textSize">19sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+    
+    <style name="TrackInfoTitleStyleInPlayer">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">@color/aluminium</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TrackInfoValueStyle" parent="TrackInfoTitleStyleInPlayer">
+        <item name="android:textColor">?attr/colorPrimaryVariant</item>
+        <item name="android:gravity">end</item>
+    </style>
 </resources>
