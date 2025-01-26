@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation.settings
 
 import android.content.Intent
 import android.net.Uri
@@ -7,8 +7,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
+import com.practicum.playlistmaker.Creator.Creator
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.domain.api.SettingsThemeInteractor
 
 class SettingsActivity : AppCompatActivity() {
+
+    private lateinit var settingsInteractor: SettingsThemeInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,10 +30,13 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        val app = applicationContext as App
-        buttonSwitch.isChecked = app.darkTheme
+        settingsInteractor = Creator.provideSettingsThemeInteractor()
 
-        buttonSwitch.setOnCheckedChangeListener { switcher, checked ->  app.switchTheme(checked)}
+        buttonSwitch.isChecked = settingsInteractor.isDarkThemeEnabled()
+
+        buttonSwitch.setOnCheckedChangeListener { switcher, checked ->
+            settingsInteractor.setTheme(checked)
+        }
 
         buttonShareApp.setOnClickListener {
             val linkApp = getString(R.string.linkToShareApp)

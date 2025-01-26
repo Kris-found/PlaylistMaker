@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Parcelize
-data class Track(
+data class Tracks(
     val trackName: String,
     val artistName: String,
     val trackTimeMillis: Long,

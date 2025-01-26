@@ -1,6 +1,5 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation.player
 
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,8 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.practicum.playlistmaker.Creator.Creator
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.domain.model.Tracks
+import com.practicum.playlistmaker.Utils.dpToPx
 
 const val KEY_TRACK_TAP = "TRACK"
 
@@ -22,8 +23,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         const val RADIUS_IMAGE = 8.0f
     }
 
-    private var playerState = PlayerState.DEFAULT
-    private var mediaPlayer = MediaPlayer()
+    private val getPlayerInteractor = Creator.provideAudioPlayerInteractor()
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -58,7 +58,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         ivCover = findViewById(R.id.ivCover)
         tvAlbum = findViewById(R.id.tvAlbum)
 
-        val track = intent.getParcelableExtra<Track>(KEY_TRACK_TAP)
+        val track = intent.getParcelableExtra<Tracks>(KEY_TRACK_TAP)
 
         if (track != null) {
             bindTrackData(track)
@@ -78,16 +78,17 @@ class AudioPlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        pausePlayer()
+        getPlayerInteractor.pause()
+        ibPlayButton.setImageResource(R.drawable.play_button)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(trackTimerUpdater())
-        mediaPlayer.release()
+        getPlayerInteractor.release()
     }
 
-    private fun bindTrackData(track: Track) {
+    private fun bindTrackData(track: Tracks) {
         tvCountryName.text = track.country
         tvGenreName.text = track.primaryGenreName
         tvYearValue.text = track.releaseDate.take(4)
@@ -105,72 +106,48 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
         songUrl = track.previewUrl
 
-        Glide.with(applicationContext)
-            .load(track.getCoverArtwork)
-            .placeholder(R.drawable.placeholder_312px)
-            .transform(RoundedCorners(dpToPx(RADIUS_IMAGE, this)))
-            .into(ivCover)
+        if (track.artworkUrl100.isNotEmpty()) {
+            Glide.with(applicationContext)
+                .load(track.getCoverArtwork)
+                .placeholder(R.drawable.placeholder_312px)
+                .transform(RoundedCorners(dpToPx(RADIUS_IMAGE, this)))
+                .into(ivCover)
+        } else {
+            ivCover.setImageResource(R.drawable.error_search)
+        }
     }
 
     private fun preparePlayer() {
-        mediaPlayer.setDataSource(songUrl)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            ibPlayButton.isEnabled = true
-            playerState = PlayerState.PREPARED
-        }
-        mediaPlayer.setOnCompletionListener {
-            tvTrackTime.text = getString(R.string.track_time_start)
-            ibPlayButton.setImageResource(R.drawable.play_button)
-            playerState = PlayerState.PREPARED
-            handler.removeCallbacks(trackTimerUpdater())
-        }
-    }
-
-    private fun startPlayer() {
-        mediaPlayer.start()
-        handler.post(trackTimerUpdater())
-        ibPlayButton.setImageResource(R.drawable.pause_button)
-        playerState = PlayerState.PLAYING
-    }
-
-    private fun pausePlayer() {
-        handler.removeCallbacks(trackTimerUpdater())
-        mediaPlayer.pause()
-        ibPlayButton.setImageResource(R.drawable.play_button)
-        playerState = PlayerState.PAUSED
-    }
-
-    private fun playbackControl() {
-        when (playerState) {
-            PlayerState.PLAYING -> {
-                pausePlayer()
+        getPlayerInteractor.prepare(
+            url = songUrl,
+            onPrepared = { ibPlayButton.isEnabled = true },
+            onCompletion = {
+                tvTrackTime.text = getString(R.string.track_time_start)
+                ibPlayButton.setImageResource(R.drawable.play_button)
+                handler.removeCallbacks(trackTimerUpdater())
             }
-
-            PlayerState.PREPARED, PlayerState.PAUSED -> {
-                startPlayer()
-            }
-
-            else -> {}
-        }
+        )
     }
 
     private fun trackTimerUpdater() = object : Runnable {
         override fun run() {
-            if (playerState == PlayerState.PLAYING) {
-                tvTrackTime.text = SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(mediaPlayer.currentPosition)
+            if (getPlayerInteractor.isPlaying()) {
+                tvTrackTime.text = getPlayerInteractor.getCurrentPosition()
                 handler.postDelayed(this, 300L)
             }
         }
     }
-}
 
-enum class PlayerState {
-    DEFAULT,
-    PREPARED,
-    PLAYING,
-    PAUSED
+    private fun playbackControl() {
+        getPlayerInteractor.playbackControl(
+            onStarted = {
+                handler.post(trackTimerUpdater())
+                ibPlayButton.setImageResource(R.drawable.pause_button)
+            },
+            onPaused = {
+                handler.removeCallbacks(trackTimerUpdater())
+                ibPlayButton.setImageResource(R.drawable.play_button)
+            }
+        )
+    }
 }
