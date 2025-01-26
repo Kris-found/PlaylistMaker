@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation.search
 
 import android.content.Context
 import android.content.Intent
@@ -23,18 +23,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.practicum.playlistmaker.Creator.Creator
+import com.practicum.playlistmaker.presentation.player.AudioPlayerActivity
+import com.practicum.playlistmaker.presentation.player.KEY_TRACK_TAP
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.data.impl.SEARCH_HISTORY_PREFERENCES
+import com.practicum.playlistmaker.data.impl.TRACK_HISTORY_KEY
+import com.practicum.playlistmaker.domain.api.TracksInteractor
+import com.practicum.playlistmaker.domain.model.Tracks
 
 class SearchActivity : AppCompatActivity() {
 
     companion object {
         private const val CLICK_DEBOUNCE_DELAY_IN_SECONDS = 1000L
         private const val SEARCH_DEBOUNCE_DELAY_IN_SECONDS = 2000L
+        private const val MAX_REQUEST_ID = 1000
     }
+
+    private val tracksInteractor = Creator.provideTracksInteractor()
 
     private val searchRunnable = Runnable {
         makeSearch()
@@ -42,15 +48,7 @@ class SearchActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var isClickAllowed = true
 
-    private val iTunesBaseUrl = "https://itunes.apple.com"
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(iTunesBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val iTunesService = retrofit.create(ITunesSearchAPI::class.java)
-    private var currentSearchCall: Call<TracksResponse>? = null
+    private var currentRequestId: Int = 0
 
     private lateinit var arrowBackButton: MaterialToolbar
     private lateinit var queryInput: EditText
@@ -61,15 +59,11 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var btnClearHistory: Button
     private lateinit var tvSearchHistory: TextView
 
-    private lateinit var listener: OnSharedPreferenceChangeListener
-    private lateinit var sharedPreferences: SharedPreferences
-
     private lateinit var progressBar: ProgressBar
-    private lateinit var searchHistory: SearchHistory
     private lateinit var searchAdapter: TrackAdapter
     private lateinit var rvForSearchTrack: RecyclerView
 
-    private val trackList = ArrayList<Track>()
+    private val trackList = ArrayList<Tracks>()
 
     private var savedQuery: String = ""
 
@@ -91,7 +85,8 @@ class SearchActivity : AppCompatActivity() {
 
         searchAdapter = TrackAdapter(ArrayList()) {
             if (clickDebounce()) {
-                searchHistory.addTrackToHistory(it)
+                tracksInteractor.addTrackToHistory(it)
+                updateHistoryRecyclerView()
                 val audioPlayerIntent = Intent(this, AudioPlayerActivity::class.java).apply {
                     putExtra(KEY_TRACK_TAP, it)
                 }
@@ -99,24 +94,18 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        sharedPreferences = getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE)
-        searchHistory = SearchHistory(sharedPreferences)
-
-        val historyTrackList = searchHistory.getHistoryTrack()
+        val historyTrackList = tracksInteractor.getHistoryTrack()
 
         rvForSearchTrack.adapter = searchAdapter
 
         updateHistoryRecyclerView()
 
-        listener = OnSharedPreferenceChangeListener { _, key ->
-            if (key == TRACK_HISTORY_KEY) {
-                updateHistoryRecyclerView()
-            }
+        tracksInteractor.registerChangeListener {
+            updateHistoryRecyclerView()
         }
-        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
 
         btnClearHistory.setOnClickListener {
-            searchHistory.clearHistory()
+            tracksInteractor.clearHistory()
             historyTrackList.clear()
             rvForSearchTrack.isVisible = false
             updateHistoryRecyclerView()
@@ -168,7 +157,7 @@ class SearchActivity : AppCompatActivity() {
                 if (queryInput.hasFocus() && s?.isEmpty() == true) {
                     trackList.clear()
                     handler.removeCallbacks(searchRunnable)
-                    currentSearchCall?.cancel()
+                    currentRequestId++
                     progressBar.isVisible = false
                     showPlaceholder(SearchState.EmptyInput)
                     updateHistoryRecyclerView()
@@ -192,7 +181,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateHistoryRecyclerView() {
-        val historyTrackList = searchHistory.getHistoryTrack()
+        val historyTrackList = tracksInteractor.getHistoryTrack()
         if (historyTrackList.isNotEmpty() && queryInput.text.isEmpty()) {
             searchAdapter.updateData(historyTrackList)
             historyVisibilityView(ViewVisibility.VISIBLE)
@@ -203,55 +192,45 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun makeSearch() {
-        if (queryInput.text.isNotEmpty()) {
+
+        val query = queryInput.text.toString()
+        if (query.isNotEmpty()) {
+            currentRequestId = (currentRequestId + 1) % MAX_REQUEST_ID
+            val requestId = currentRequestId
 
             progressBar.isVisible = true
             showPlaceholder(SearchState.EmptyInput)
             rvForSearchTrack.isVisible = false
 
-            currentSearchCall = iTunesService.search(queryInput.text.toString())
-
-            currentSearchCall?.enqueue(object : Callback<TracksResponse> {
-                override fun onResponse(
-                    call: Call<TracksResponse>,
-                    response: Response<TracksResponse>
-                ) {
-                    if (call.isCanceled) {
+            tracksInteractor.searchTracks(query, object : TracksInteractor.TracksConsumer {
+                override fun consume(foundTracks: List<Tracks>) {
+                    handler.post {
+                        if (requestId != currentRequestId) return@post
                         progressBar.isVisible = false
-                        return
-                    }
-                    progressBar.isVisible = false
-                    if (response.code() == 200) {
-                        if (response.body()?.resultCount!! > 0) {
-                            showPlaceholder(SearchState.Success)
-                            trackList.addAll(response.body()?.results!!)
-                            searchAdapter.updateData(trackList)
-                        } else {
+                        if (foundTracks.isEmpty()) {
                             showPlaceholder(SearchState.Empty)
+                        } else {
+                            showPlaceholder(SearchState.Success)
+                            trackList.addAll(foundTracks)
+                            searchAdapter.updateData(trackList)
                         }
-                    } else {
+                    }
+                }
+
+                override fun onError(errorMessage: String) {
+                    handler.post {
+                        if (requestId != currentRequestId) return@post
+                        progressBar.isVisible = false
                         showPlaceholder(SearchState.NoConnection)
                         Toast.makeText(
                             applicationContext,
-                            "Error: ${response.code()}",
+                            errorMessage,
                             Toast.LENGTH_SHORT
-                        )
-                            .show()
+                        ).show()
                     }
                 }
-
-                override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
-                    if (call.isCanceled) return
-                    progressBar.isVisible = false
-                    showPlaceholder(SearchState.NoConnection)
-                    Toast.makeText(
-                        applicationContext,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                }
-            })
+            }
+            )
         }
     }
 
