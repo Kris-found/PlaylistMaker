@@ -2,8 +2,8 @@ package com.practicum.playlistmaker.Utils
 
 import android.content.Context
 import android.util.TypedValue
-import com.practicum.playlistmaker.data.dto.TracksDto
-import com.practicum.playlistmaker.domain.model.Tracks
+import com.practicum.playlistmaker.search.data.dto.TracksDto
+import com.practicum.playlistmaker.search.domain.model.Tracks
 
 fun dpToPx(dp: Float, context: Context): Int {
     return TypedValue.applyDimension(
