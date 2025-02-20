@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.creator
+package com.practicum.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE

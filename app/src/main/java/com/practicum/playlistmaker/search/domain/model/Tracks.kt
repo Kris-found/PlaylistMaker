@@ -1,11 +1,9 @@
 package com.practicum.playlistmaker.search.domain.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-@Parcelize
 data class Tracks(
     val trackName: String,
     val artistName: String,
@@ -17,7 +15,7 @@ data class Tracks(
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String,
-) : Parcelable {
+) : Serializable {
     val formattedTrackTime: String
         get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
 

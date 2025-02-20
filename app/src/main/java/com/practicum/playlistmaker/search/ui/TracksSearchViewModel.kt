@@ -10,12 +10,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.Utils.SingleEventLiveData
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.search.domain.TracksInteractor
-import com.practicum.playlistmaker.search.domain.model.SearchState
+import com.practicum.playlistmaker.search.domain.model.SearchScreenState
 import com.practicum.playlistmaker.search.domain.model.Tracks
-import com.practicum.playlistmaker.search.history.model.HistoryState
 
 class TracksSearchViewModel(
     application: Application,
@@ -33,11 +32,8 @@ class TracksSearchViewModel(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val searchStateLiveData = MutableLiveData<SearchState>()
-    fun getSearchState(): LiveData<SearchState> = searchStateLiveData
-
-    private val historyStateLiveData = MutableLiveData<HistoryState>()
-    fun getHistoryState(): LiveData<HistoryState> = historyStateLiveData
+    private val screenStateLiveData = MutableLiveData<SearchScreenState>()
+    fun getScreenState(): LiveData<SearchScreenState> = screenStateLiveData
 
     private val clickDebounceLiveData = SingleEventLiveData<Tracks>()
     fun getClickDebounce(): LiveData<Tracks> = clickDebounceLiveData
@@ -53,9 +49,9 @@ class TracksSearchViewModel(
 
     fun setHistoryTrackList() {
         val historyTrackList = tracksInteractor.getHistoryTrack()
-        historyStateLiveData.postValue(
-            if (historyTrackList.isEmpty()) HistoryState.EmptyHistory else
-                HistoryState.HistoryContent(historyTrackList)
+        screenStateLiveData.postValue(
+            if (historyTrackList.isEmpty()) SearchScreenState.EmptyHistory else
+                SearchScreenState.HistoryContent(historyTrackList)
         )
     }
 
@@ -69,25 +65,23 @@ class TracksSearchViewModel(
             currentRequestId = (currentRequestId + 1) % MAX_REQUEST_ID
             val requestId = currentRequestId
 
-            searchStateLiveData.postValue(SearchState.Loading)
+            screenStateLiveData.postValue(SearchScreenState.Loading)
 
             val consumer = object : TracksInteractor.TracksConsumer {
                 override fun consume(foundTracks: List<Tracks>?) {
                     if (requestId != currentRequestId) return
                     if (foundTracks.isNullOrEmpty()) {
-                        searchStateLiveData.postValue(SearchState.NothingFound)
+                        screenStateLiveData.postValue(SearchScreenState.NothingFound)
                     } else {
-                        searchStateLiveData.postValue(
-                            SearchState.Success(
-                                foundTracks
-                            )
+                        screenStateLiveData.postValue(
+                            SearchScreenState.Success(foundTracks)
                         )
                     }
                 }
 
                 override fun onError(errorMessage: String?) {
                     if (requestId != currentRequestId) return
-                    searchStateLiveData.postValue(SearchState.NoConnection)
+                    screenStateLiveData.postValue(SearchScreenState.NoConnection)
                 }
             }
             tracksInteractor.searchTracks(query, consumer)
@@ -100,15 +94,13 @@ class TracksSearchViewModel(
         handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY_IN_SECONDS)
     }
 
-    fun clickDebounce(track: Tracks): Boolean {
-        val current = isClickAllowed
+    fun clickDebounce(track: Tracks) {
         if (isClickAllowed) {
             isClickAllowed = false
             addTrackToHistory(track)
             clickDebounceLiveData.value = track
             handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY_IN_SECONDS)
         }
-        return current
     }
 
     fun removeCallback() {

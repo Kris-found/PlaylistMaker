@@ -22,9 +22,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.player.ui.AudioPlayerActivity
 import com.practicum.playlistmaker.player.ui.KEY_TRACK_TAP
-import com.practicum.playlistmaker.search.domain.model.SearchState
+import com.practicum.playlistmaker.search.domain.model.SearchScreenState
 import com.practicum.playlistmaker.search.domain.model.Tracks
-import com.practicum.playlistmaker.search.history.model.HistoryState
 
 class SearchActivity : AppCompatActivity() {
 
@@ -78,12 +77,8 @@ class SearchActivity : AppCompatActivity() {
 
         onTrackClickEvents()
 
-        viewModel.getHistoryState().observe(this) {
-            renderHistory(it)
-        }
-
-        viewModel.getSearchState().observe(this) {
-            renderSearch(it)
+        viewModel.getScreenState().observe(this) {
+            renderScreenState(it)
         }
 
         arrowBackButton.setNavigationOnClickListener {
@@ -164,27 +159,27 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun renderSearch(searchState: SearchState) {
+    private fun renderScreenState(state: SearchScreenState) {
         val placeholderImage = findViewById<ImageView>(R.id.placeholderImage)
         val placeholderMessage = findViewById<TextView>(R.id.placeholderMessage)
 
         val errorMessage =
             "${getString(R.string.error_no_connection)}\n\n${getString(R.string.download_failed)}"
 
-        progressBar.isVisible = searchState is SearchState.Loading
+        progressBar.isVisible = state is SearchScreenState.Loading
 
-        when (searchState) {
-            is SearchState.Loading -> {
+        when (state) {
+            is SearchScreenState.Loading -> {
                 rvForSearchTrack.isVisible = false
             }
 
-            is SearchState.Success -> {
+            is SearchScreenState.Success -> {
                 layoutPlaceholderError.isVisible = false
-                searchAdapter.updateData(ArrayList(searchState.tracks))
+                searchAdapter.updateData(ArrayList(state.tracks))
                 rvForSearchTrack.isVisible = true
             }
 
-            is SearchState.NothingFound -> {
+            is SearchScreenState.NothingFound -> {
                 layoutPlaceholderError.isVisible = true
                 rvForSearchTrack.isVisible = false
                 refreshButton.isVisible = false
@@ -192,28 +187,23 @@ class SearchActivity : AppCompatActivity() {
                 placeholderMessage.text = getString(R.string.error_search_empty)
             }
 
-            is SearchState.NoConnection -> {
+            is SearchScreenState.NoConnection -> {
                 layoutPlaceholderError.isVisible = true
                 refreshButton.isVisible = true
                 rvForSearchTrack.isVisible = false
                 placeholderImage.setImageResource(R.drawable.error_internet)
                 placeholderMessage.text = errorMessage
             }
-        }
-    }
 
-    private fun renderHistory(state: HistoryState) {
-        when (state) {
-            is HistoryState.HistoryContent -> {
+            is SearchScreenState.EmptyHistory -> {
+                historyVisibilityView(ViewVisibility.GONE)
+                rvForSearchTrack.isVisible = false
+                layoutPlaceholderError.isVisible = false
+            }
+            is SearchScreenState.HistoryContent -> {
                 searchAdapter.updateData(ArrayList(state.history))
                 historyVisibilityView(ViewVisibility.VISIBLE)
                 rvForSearchTrack.isVisible = true
-                layoutPlaceholderError.isVisible = false
-            }
-
-            is HistoryState.EmptyHistory -> {
-                historyVisibilityView(ViewVisibility.GONE)
-                rvForSearchTrack.isVisible = false
                 layoutPlaceholderError.isVisible = false
             }
         }

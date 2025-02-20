@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.Utils.dpToPx
+import com.practicum.playlistmaker.player.model.AudioPlayerState
 import com.practicum.playlistmaker.player.model.PlayerState
 import com.practicum.playlistmaker.search.domain.model.Tracks
 
@@ -43,7 +44,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audio_player)
 
-        val track = intent.getParcelableExtra<Tracks>(KEY_TRACK_TAP)
+        val track = intent.getSerializableExtra(KEY_TRACK_TAP) as Tracks?
 
         viewModel = ViewModelProvider(
             this,
@@ -75,10 +76,6 @@ class AudioPlayerActivity : AppCompatActivity() {
 
         viewModel.getPlayerState().observe(this) {
             render(it)
-        }
-
-        viewModel.getCurrentPosition().observe(this) { position ->
-            tvTrackTime.text = position
         }
     }
 
@@ -123,23 +120,27 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun render(state: PlayerState) {
+    private fun render(state: AudioPlayerState) {
         when (state) {
-            PlayerState.PREPARED -> {
-                ibPlayButton.isEnabled = true
-                tvTrackTime.text = getString(R.string.track_time_start)
-                ibPlayButton.setImageResource(R.drawable.play_button)
-            }
-
-            PlayerState.PLAYING -> {
+            is AudioPlayerState.Playing -> {
+                tvTrackTime.text = state.currentPosition
                 ibPlayButton.setImageResource(R.drawable.pause_button)
             }
 
-            PlayerState.PAUSED -> {
-                ibPlayButton.setImageResource(R.drawable.play_button)
-            }
+            is AudioPlayerState.State -> {
+                when (state.playerState) {
+                    PlayerState.PREPARED -> {
+                        ibPlayButton.isEnabled = true
+                        tvTrackTime.text = getString(R.string.track_time_start)
+                        ibPlayButton.setImageResource(R.drawable.play_button)
+                    }
 
-            PlayerState.DEFAULT -> {}
+                    PlayerState.PAUSED -> {
+                        ibPlayButton.setImageResource(R.drawable.play_button)
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 }

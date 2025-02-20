@@ -2,7 +2,7 @@ package com.practicum.playlistmaker.application
 
 import android.app.Application
 import android.content.res.Configuration
-import com.practicum.playlistmaker.creator.Creator
+import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.settings.domain.SettingsThemeInteractor
 
 class App : Application() {
