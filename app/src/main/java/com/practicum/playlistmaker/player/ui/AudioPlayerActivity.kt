@@ -1,19 +1,17 @@
 package com.practicum.playlistmaker.player.ui
 
 import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.Utils.dpToPx
+import com.practicum.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.practicum.playlistmaker.player.model.AudioPlayerState
-import com.practicum.playlistmaker.player.model.PlayerState
 import com.practicum.playlistmaker.search.domain.model.Tracks
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 const val KEY_TRACK_TAP = "TRACK"
 
@@ -23,54 +21,27 @@ class AudioPlayerActivity : AppCompatActivity() {
         const val RADIUS_IMAGE = 8.0f
     }
 
-    private lateinit var viewModel: AudioPlayerViewModel
-
+    private lateinit var binding: ActivityAudioPlayerBinding
     private var songUrl: String = ""
 
-    private lateinit var arrowBackButton: ImageButton
-    private lateinit var tvCountryName: TextView
-    private lateinit var tvGenreName: TextView
-    private lateinit var tvYearValue: TextView
-    private lateinit var tvAlbumName: TextView
-    private lateinit var tvTrackDuration: TextView
-    private lateinit var ibPlayButton: ImageButton
-    private lateinit var tvTrackTime: TextView
-    private lateinit var tvArtistName: TextView
-    private lateinit var tvHeadAlbumName: TextView
-    private lateinit var ivCover: ImageView
-    private lateinit var tvAlbum: TextView
+    private val viewModel by viewModel<AudioPlayerViewModel> {
+        parametersOf(songUrl)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_audio_player)
+        binding = ActivityAudioPlayerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val track = intent.getSerializableExtra(KEY_TRACK_TAP) as Tracks?
 
-        viewModel = ViewModelProvider(
-            this,
-            AudioPlayerViewModel.getViewModelFactory(track!!.previewUrl)
-        )[AudioPlayerViewModel::class.java]
-
-        tvCountryName = findViewById(R.id.tvCountryName)
-        tvGenreName = findViewById(R.id.tvGenreName)
-        tvYearValue = findViewById(R.id.tvYearValue)
-        tvAlbumName = findViewById(R.id.tvAlbumName)
-        tvTrackDuration = findViewById(R.id.tvTrackDuration)
-        tvTrackTime = findViewById(R.id.tvTrackTime)
-        ibPlayButton = findViewById(R.id.ibPlayButton)
-        tvArtistName = findViewById(R.id.tvArtistName)
-        tvHeadAlbumName = findViewById(R.id.tvHeadAlbumName)
-        ivCover = findViewById(R.id.ivCover)
-        tvAlbum = findViewById(R.id.tvAlbum)
-        arrowBackButton = findViewById(R.id.arrowBack)
-
         if (track != null) bindTrackData(track) else finish()
 
-        arrowBackButton.setOnClickListener {
+        binding.arrowBack.setOnClickListener {
             finish()
         }
 
-        ibPlayButton.setOnClickListener {
+        binding.ibPlayButton.setOnClickListener {
             viewModel.playbackControl()
         }
 
@@ -92,19 +63,19 @@ class AudioPlayerActivity : AppCompatActivity() {
     }
 
     private fun bindTrackData(track: Tracks) {
-        tvCountryName.text = track.country
-        tvGenreName.text = track.primaryGenreName
-        tvYearValue.text = track.releaseDate.take(4)
-        tvAlbumName.text = track.collectionName ?: run {
-            tvAlbumName.isVisible = false
-            tvAlbum.isVisible = false
+        binding.tvCountryName.text = track.country
+        binding.tvGenreName.text = track.primaryGenreName
+        binding.tvYearValue.text = track.releaseDate.take(4)
+        binding.tvAlbumName.text = track.collectionName ?: run {
+            binding.tvAlbumName.isVisible = false
+            binding.tvAlbum.isVisible = false
             return@run ""
         }
-        tvTrackDuration.text = track.formattedTrackTime
-        tvTrackTime.text = getString(R.string.track_time_start)
-        tvArtistName.text = track.artistName
-        tvHeadAlbumName.text = track.collectionName ?: run {
-            tvHeadAlbumName.isVisible = false
+        binding.tvTrackDuration.text = track.formattedTrackTime
+        binding.tvTrackTime.text = getString(R.string.track_time_start)
+        binding.tvArtistName.text = track.artistName
+        binding.tvHeadAlbumName.text = track.collectionName ?: run {
+            binding.tvHeadAlbumName.isVisible = false
             return@run ""
         }
         songUrl = track.previewUrl
@@ -114,32 +85,29 @@ class AudioPlayerActivity : AppCompatActivity() {
                 .load(track.getCoverArtwork)
                 .placeholder(R.drawable.placeholder_312px)
                 .transform(RoundedCorners(dpToPx(RADIUS_IMAGE, this)))
-                .into(ivCover)
+                .into(binding.ivCover)
         } else {
-            ivCover.setImageResource(R.drawable.error_search)
+            binding.ivCover.setImageResource(R.drawable.error_search)
         }
     }
 
     private fun render(state: AudioPlayerState) {
         when (state) {
-            is AudioPlayerState.Playing -> {
-                tvTrackTime.text = state.currentPosition
-                ibPlayButton.setImageResource(R.drawable.pause_button)
+
+            is AudioPlayerState.Prepared -> {
+                binding.ibPlayButton.isEnabled = true
+                binding.tvTrackTime.text = getString(R.string.track_time_start)
+                binding.ibPlayButton.setImageResource(R.drawable.play_button)
             }
 
-            is AudioPlayerState.State -> {
-                when (state.playerState) {
-                    PlayerState.PREPARED -> {
-                        ibPlayButton.isEnabled = true
-                        tvTrackTime.text = getString(R.string.track_time_start)
-                        ibPlayButton.setImageResource(R.drawable.play_button)
-                    }
+            is AudioPlayerState.Playing -> {
+                binding.tvTrackTime.text = state.currentPosition
+                binding.ibPlayButton.setImageResource(R.drawable.pause_button)
+            }
 
-                    PlayerState.PAUSED -> {
-                        ibPlayButton.setImageResource(R.drawable.play_button)
-                    }
-                    else -> {}
-                }
+            is AudioPlayerState.Paused -> {
+                binding.ibPlayButton.setImageResource(R.drawable.play_button)
+                binding.tvTrackTime.text = state.lastPosition
             }
         }
     }
