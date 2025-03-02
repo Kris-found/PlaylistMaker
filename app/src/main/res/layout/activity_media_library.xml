@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.library.MediaLibraryActivity"
+    android:background="?attr/backgroundColor"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:gravity="center_horizontal">
+    tools:context=".library.ui.MediaLibraryActivity">
 
     <ImageView
         android:id="@+id/arrowBack"
@@ -17,13 +17,13 @@
         android:id="@+id/call_me"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="center"
+        android:gravity="center"
         android:text="Медиатика" />
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="300dp"
-        android:layout_height="300dp"/>
+        android:layout_height="300dp" />
 
 </LinearLayout>
