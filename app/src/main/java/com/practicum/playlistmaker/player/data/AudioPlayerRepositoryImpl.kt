@@ -5,9 +5,8 @@ import com.practicum.playlistmaker.player.domain.AudioPlayerRepository
 import com.practicum.playlistmaker.player.model.PlayerState
 
 
-class AudioPlayerRepositoryImpl : AudioPlayerRepository {
+class AudioPlayerRepositoryImpl(private val mediaPlayer: MediaPlayer) : AudioPlayerRepository {
 
-    private var mediaPlayer = MediaPlayer()
     private var playerState = PlayerState.DEFAULT
 
     override fun preparePlayer(url: String, onPrepared: () -> Unit, onCompletion: () -> Unit) {

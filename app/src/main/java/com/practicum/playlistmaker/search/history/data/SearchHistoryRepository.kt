@@ -7,5 +7,4 @@ interface SearchHistoryRepository {
     fun getHistoryTrack(): List<TracksDto>
     fun addTrackToHistory(track: TracksDto)
     fun clearHistory()
-    fun registerChangeListener(onChange: () -> Unit)
 }

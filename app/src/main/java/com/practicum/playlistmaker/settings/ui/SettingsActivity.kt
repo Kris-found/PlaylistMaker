@@ -2,52 +2,41 @@ package com.practicum.playlistmaker.settings.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.switchmaterial.SwitchMaterial
-import com.google.android.material.textview.MaterialTextView
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.databinding.ActivitySettingsBinding
 import com.practicum.playlistmaker.sharing.domain.model.EmailData
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: SettingsViewModel
+    private lateinit var binding: ActivitySettingsBinding
+
+    private val viewModel by viewModel<SettingsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setContentView(R.layout.activity_settings)
-
-        val arrowBackButtonInSettings = findViewById<MaterialToolbar>(R.id.arrowBack)
-        val buttonSwitch = findViewById<SwitchMaterial>(R.id.switchTheme)
-        val buttonShareApp = findViewById<MaterialTextView>(R.id.shareApp)
-        val buttonWriteToSupport = findViewById<MaterialTextView>(R.id.writeToSupport)
-        val buttonAgreement = findViewById<MaterialTextView>(R.id.agreement)
-
-        arrowBackButtonInSettings.setNavigationOnClickListener {
+        binding.arrowBack.setNavigationOnClickListener {
             finish()
         }
 
-        viewModel = ViewModelProvider(
-            this,
-            SettingsViewModel.getViewModelFactory()
-        )[SettingsViewModel::class.java]
-
         viewModel.getThemeAppLiveData().observe(this) { isDarkThemeEnabled ->
-            buttonSwitch.isChecked = isDarkThemeEnabled
+            binding.switchTheme.isChecked = isDarkThemeEnabled
         }
 
-        buttonSwitch.setOnCheckedChangeListener { switcher, checked ->
+        binding.switchTheme.setOnCheckedChangeListener { switcher, checked ->
             viewModel.switchTheme(checked)
         }
 
-        buttonShareApp.setOnClickListener {
+        binding.shareApp.setOnClickListener {
             val linkApp = getString(R.string.linkToShareApp)
             val title = getString(R.string.titleShareApp)
             viewModel.shareApp(linkApp, title)
         }
 
-        buttonWriteToSupport.setOnClickListener {
+        binding.writeToSupport.setOnClickListener {
             val emailSupport = getString(R.string.emailSupport)
             val themeMessage = getString(R.string.supportThemeMessage)
             val message = getString(R.string.defaultSupportMessage)
@@ -60,7 +49,7 @@ class SettingsActivity : AppCompatActivity() {
             viewModel.openSupport(emailData)
         }
 
-        buttonAgreement.setOnClickListener {
+        binding.agreement.setOnClickListener {
             val offerYA = getString(R.string.appOffer)
             viewModel.openTermsLink(offerYA)
         }

@@ -5,19 +5,18 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.practicum.playlistmaker.search.data.dto.Response
 import com.practicum.playlistmaker.search.data.dto.TracksSearchRequest
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitNetworkClientImpl(private val context: Context) : NetworkClient {
+class RetrofitNetworkClientImpl(private val iTunesService: ITunesSearchAPI,
+                                private val context: Context) : NetworkClient {
 
-    private val iTunesBaseUrl = "https://itunes.apple.com"
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(iTunesBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val iTunesService = retrofit.create(ITunesSearchAPI::class.java)
+//    private val iTunesBaseUrl = "https://itunes.apple.com"
+//
+//    private val retrofit = Retrofit.Builder()
+//        .baseUrl(iTunesBaseUrl)
+//        .addConverterFactory(GsonConverterFactory.create())
+//        .build()
+//
+//    private val iTunesService = retrofit.create(ITunesSearchAPI::class.java)
 
     override fun doRequest(dto: Any): Response {
 

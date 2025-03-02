@@ -3,16 +3,13 @@ package com.practicum.playlistmaker.settings.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.settings.domain.SettingsThemeInteractor
 import com.practicum.playlistmaker.sharing.domain.SharingInteractor
 import com.practicum.playlistmaker.sharing.domain.model.EmailData
 
-class SettingsViewModel(private val settingsInteractor: SettingsThemeInteractor,
-                        private val sharingInteractor: SharingInteractor
+class SettingsViewModel(
+    private val settingsInteractor: SettingsThemeInteractor,
+    private val sharingInteractor: SharingInteractor
 ) : ViewModel() {
 
     private val themeAppLiveData = MutableLiveData<Boolean>()
@@ -22,7 +19,7 @@ class SettingsViewModel(private val settingsInteractor: SettingsThemeInteractor,
         themeAppLiveData.value = settingsInteractor.isDarkThemeEnabled()
     }
 
-    fun switchTheme(isDarkThemeEnabled: Boolean){
+    fun switchTheme(isDarkThemeEnabled: Boolean) {
         settingsInteractor.setTheme(isDarkThemeEnabled)
         themeAppLiveData.value = isDarkThemeEnabled
     }
@@ -37,16 +34,5 @@ class SettingsViewModel(private val settingsInteractor: SettingsThemeInteractor,
 
     fun openTermsLink(linkTerms: String) {
         sharingInteractor.orenTerms(linkTerms)
-    }
-
-    companion object {
-        fun getViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SettingsViewModel(
-                    Creator.provideSettingsThemeInteractor(),
-                    Creator.provideSharingInteractor()
-                )
-            }
-        }
     }
 }
