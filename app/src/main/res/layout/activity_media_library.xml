@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -9,21 +10,29 @@
     android:orientation="vertical"
     tools:context=".library.ui.MediaLibraryActivity">
 
-    <ImageView
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/arrowBack"
-        style="@style/HeaderArrowBack" />
-
-    <TextView
-        android:id="@+id/call_me"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Медиатика" />
+        app:navigationIcon="@drawable/arrow_back"
+        app:navigationIconTint="?attr/colorPrimaryVariant"
+        app:title="@string/media_library"
+        app:titleTextAppearance="@style/Header"
+        app:titleTextColor="?attr/colorPrimaryVariant" />
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="300dp"
-        android:layout_height="300dp" />
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dimension_16dp"
+        android:background="?attr/colorPrimary"
+        app:tabIndicatorColor="?attr/colorPrimaryVariant"
+        app:tabTextColor="?attr/colorPrimaryVariant"
+        app:tabIndicatorFullWidth="true" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
