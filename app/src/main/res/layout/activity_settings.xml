@@ -42,7 +42,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/agreement"
         style="@style/TextInSettingsStyle"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="@dimen/dimension_4dp"
         android:drawableEnd="@drawable/arrow_forward"
         android:drawableTint="?attr/colorOnSecondary"
         android:text="@string/user_agreement" />

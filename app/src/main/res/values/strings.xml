@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Playlist maker</string>
     <string name="search">Поиск</string>
-    <string name="media_lib">Медиатека</string>
+    <string name="media_library">Медиатека</string>
     <string name="settings">Настройки</string>
 
     <string name="dark_theme">Темная тема</string>
@@ -29,7 +29,12 @@
     <string name="year">Год</string>
     <string name="album">Альбом</string>
     <string name="duration">Длительность</string>
-    
     <string name="track_time_start">00:00</string>
+
+    <string name="new_playlist">Новый плейлист</string>
+    <string name="empty_playlist_message">Вы не создали \nни одного плейлиста</string>
+    <string name="empty_library">Ваша медиатека пуста</string>
+    <string name="favorite_tracks">Избранные треки</string>
+    <string name="playlists">Плейлисты</string>
 
 </resources>

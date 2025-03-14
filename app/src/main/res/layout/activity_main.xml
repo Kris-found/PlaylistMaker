@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="?attr/colorSecondary"
     android:orientation="vertical"
-    android:paddingHorizontal="@dimen/main_horizontal_padding"
+    android:paddingHorizontal="@dimen/dimension_16dp"
     android:paddingBottom="28dp">
 
     <TextView
@@ -30,9 +30,9 @@
     <Button
         android:id="@+id/mediaButton"
         style="@style/MainButtonStyle"
-        android:layout_marginTop="@dimen/button_padding"
-        android:layout_marginBottom="@dimen/button_padding"
-        android:text="@string/media_lib"
+        android:layout_marginTop="@dimen/dimension_16dp"
+        android:layout_marginBottom="@dimen/dimension_16dp"
+        android:text="@string/media_library"
         app:icon="@drawable/library_vector" />
 
     <Button

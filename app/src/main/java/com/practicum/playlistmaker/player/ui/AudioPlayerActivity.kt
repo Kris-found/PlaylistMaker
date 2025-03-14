@@ -65,7 +65,7 @@ class AudioPlayerActivity : AppCompatActivity() {
     private fun bindTrackData(track: Tracks) {
         binding.tvCountryName.text = track.country
         binding.tvGenreName.text = track.primaryGenreName
-        binding.tvYearValue.text = track.releaseDate.take(4)
+        binding.tvYearValue.text = track.releaseDate?.take(4) ?: ""
         binding.tvAlbumName.text = track.collectionName ?: run {
             binding.tvAlbumName.isVisible = false
             binding.tvAlbum.isVisible = false
