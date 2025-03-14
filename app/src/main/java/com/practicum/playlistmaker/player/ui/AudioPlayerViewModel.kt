@@ -5,18 +5,17 @@ import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.player.domain.AudioPlayerInteractor
 import com.practicum.playlistmaker.player.model.AudioPlayerState
-import com.practicum.playlistmaker.player.model.PlayerState
 
 class AudioPlayerViewModel(
     url: String,
     private val playerInteractor: AudioPlayerInteractor,
 ) : ViewModel() {
+
+    companion object {
+        const val DELAY_MILLIS = 300L
+    }
 
     private val playerStateLiveData = MutableLiveData<AudioPlayerState>()
     fun getPlayerState(): LiveData<AudioPlayerState> = playerStateLiveData
@@ -31,11 +30,11 @@ class AudioPlayerViewModel(
         playerInteractor.prepare(
             url = previewUrl,
             onPrepared = {
-                playerStateLiveData.postValue(AudioPlayerState.State(PlayerState.PREPARED))
+                playerStateLiveData.postValue(AudioPlayerState.Prepared)
             },
             onCompletion = {
                 handler.removeCallbacks(trackTimerUpdater())
-                playerStateLiveData.postValue(AudioPlayerState.State(PlayerState.PREPARED))
+                playerStateLiveData.postValue(AudioPlayerState.Prepared)
             }
         )
     }
@@ -43,7 +42,11 @@ class AudioPlayerViewModel(
     private fun trackTimerUpdater() = object : Runnable {
         override fun run() {
             if (playerInteractor.isPlaying()) {
-                playerStateLiveData.postValue(AudioPlayerState.Playing(playerInteractor.getCurrentPosition()))
+                playerStateLiveData.postValue(
+                    AudioPlayerState.Playing(
+                        playerInteractor.getCurrentPosition()
+                    )
+                )
                 handler.postDelayed(this, DELAY_MILLIS)
             }
         }
@@ -52,11 +55,14 @@ class AudioPlayerViewModel(
     fun playbackControl() {
         playerInteractor.playbackControl(
             onStarted = {
-                playerStateLiveData.postValue(AudioPlayerState.State(PlayerState.PLAYING))
                 handler.post(trackTimerUpdater())
             },
             onPaused = {
-                playerStateLiveData.postValue(AudioPlayerState.State(PlayerState.PAUSED))
+                playerStateLiveData.postValue(
+                    AudioPlayerState.Paused(
+                        playerInteractor.getCurrentPosition()
+                    )
+                )
                 handler.removeCallbacks(trackTimerUpdater())
             }
         )
@@ -64,24 +70,16 @@ class AudioPlayerViewModel(
 
     fun pausePlayer() {
         playerInteractor.pause()
-        playerStateLiveData.postValue(AudioPlayerState.State(PlayerState.PAUSED))
+        playerStateLiveData.postValue(
+            AudioPlayerState.Paused(
+                playerInteractor.getCurrentPosition()
+            )
+        )
     }
 
     fun release() {
         handler.removeCallbacks(trackTimerUpdater())
         playerInteractor.release()
-    }
-
-    companion object {
-        const val DELAY_MILLIS = 300L
-        fun getViewModelFactory(url: String): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                AudioPlayerViewModel(
-                    url,
-                    Creator.provideAudioPlayerInteractor()
-                )
-            }
-        }
     }
 
     override fun onCleared() {

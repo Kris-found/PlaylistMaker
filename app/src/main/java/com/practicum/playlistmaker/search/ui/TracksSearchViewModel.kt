@@ -1,29 +1,27 @@
 package com.practicum.playlistmaker.search.ui
 
-import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.practicum.playlistmaker.Creator
+import androidx.lifecycle.ViewModel
 import com.practicum.playlistmaker.Utils.SingleEventLiveData
 import com.practicum.playlistmaker.search.domain.TracksInteractor
 import com.practicum.playlistmaker.search.domain.model.SearchScreenState
 import com.practicum.playlistmaker.search.domain.model.Tracks
 
 class TracksSearchViewModel(
-    application: Application,
     private val tracksInteractor: TracksInteractor
-) : AndroidViewModel(application) {
+) : ViewModel() {
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY_IN_SECONDS = 2000L
+        private const val CLICK_DEBOUNCE_DELAY_IN_SECONDS = 1000L
+        private const val MAX_REQUEST_ID = 1000
+    }
 
     var currentRequestId: Int = 0
     private var currentQuery = ""
-
     private var isClickAllowed = true
 
     private val searchRunnable = Runnable {
@@ -105,21 +103,6 @@ class TracksSearchViewModel(
 
     fun removeCallback() {
         handler.removeCallbacks(searchRunnable)
-    }
-
-    companion object {
-        private const val SEARCH_DEBOUNCE_DELAY_IN_SECONDS = 2000L
-        private const val CLICK_DEBOUNCE_DELAY_IN_SECONDS = 1000L
-        private const val MAX_REQUEST_ID = 1000
-
-        fun getViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                TracksSearchViewModel(
-                    this[APPLICATION_KEY] as Application,
-                    Creator.provideTracksInteractor()
-                )
-            }
-        }
     }
 
     override fun onCleared() {
