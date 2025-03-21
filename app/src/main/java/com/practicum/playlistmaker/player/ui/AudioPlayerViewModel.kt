@@ -20,7 +20,7 @@ class AudioPlayerViewModel(
     private val playerStateLiveData = MutableLiveData<AudioPlayerState>()
     fun getPlayerState(): LiveData<AudioPlayerState> = playerStateLiveData
 
-    private val handler = Handler(Looper.getMainLooper())
+    private var handler = Handler(Looper.getMainLooper())
 
     init {
         preparePlayer(url)
@@ -79,11 +79,6 @@ class AudioPlayerViewModel(
 
     fun release() {
         handler.removeCallbacks(trackTimerUpdater())
-        playerInteractor.release()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
         playerInteractor.release()
     }
 }

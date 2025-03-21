@@ -5,34 +5,47 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.databinding.ActivitySearchBinding
+import com.practicum.playlistmaker.databinding.FragmentSearchBinding
 import com.practicum.playlistmaker.player.ui.AudioPlayerActivity
-import com.practicum.playlistmaker.player.ui.KEY_TRACK_TAP
 import com.practicum.playlistmaker.search.domain.model.SearchScreenState
 import com.practicum.playlistmaker.search.domain.model.Tracks
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
 
-    private lateinit var binding: ActivitySearchBinding
+    companion object {
+        private const val KEY_SEARCH = "key_search"
+        private const val EMPTY_TEXT = ""
+    }
+
+    private lateinit var binding: FragmentSearchBinding
 
     private val viewModel by viewModel<TracksSearchViewModel>()
 
     private lateinit var searchAdapter: TrackAdapter
     private val trackList = ArrayList<Tracks>()
-    private var savedQuery: String = ""
+    private var savedQuery = EMPTY_TEXT
     private var shouldUpdateHistory = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         searchAdapter = TrackAdapter(ArrayList()) {
             viewModel.clickDebounce(it)
@@ -42,12 +55,8 @@ class SearchActivity : AppCompatActivity() {
 
         onTrackClickEvents()
 
-        viewModel.getScreenState().observe(this) {
+        viewModel.getScreenState().observe(viewLifecycleOwner) {
             renderScreenState(it)
-        }
-
-        binding.arrowBack.setNavigationOnClickListener {
-            finish()
         }
 
         binding.btnClearHistory.setOnClickListener {
@@ -55,12 +64,12 @@ class SearchActivity : AppCompatActivity() {
         }
 
         binding.clearIcon.setOnClickListener {
-            binding.queryInput.setText("")
+            binding.queryInput.setText(EMPTY_TEXT)
             trackList.clear()
             searchAdapter.notifyDataSetChanged()
             viewModel.setHistoryTrackList()
             val inputMethodManager =
-                getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(binding.clearIcon.windowToken, 0)
         }
 
@@ -110,7 +119,13 @@ class SearchActivity : AppCompatActivity() {
             }
         }
         binding.queryInput.addTextChangedListener(textWatcher)
+
+        savedInstanceState?.let { bundle ->
+            savedQuery = bundle.getString(KEY_SEARCH, EMPTY_TEXT)
+            binding.queryInput.setText(savedQuery)
+        }
     }
+
     override fun onResume() {
         super.onResume()
         if (shouldUpdateHistory && binding.queryInput.text.isEmpty()) {
@@ -120,11 +135,12 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun onTrackClickEvents() {
-        viewModel.getClickDebounce().observe(this) { track ->
+        viewModel.getClickDebounce().observe(viewLifecycleOwner) { track ->
 
-            val audioPlayerIntent = Intent(this, AudioPlayerActivity::class.java).apply {
-                putExtra(KEY_TRACK_TAP, track)
-            }
+            val audioPlayerIntent =
+                Intent(requireContext(), AudioPlayerActivity::class.java).apply {
+                    putExtra(AudioPlayerActivity.KEY_TRACK_TAP, track)
+                }
             startActivity(audioPlayerIntent)
 
             shouldUpdateHistory = true
@@ -204,13 +220,7 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString("key_search", binding.queryInput.text.toString())
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        savedQuery = savedInstanceState.getString("key_search", "")
-        binding.queryInput.setText(savedQuery)
+        outState.putString(KEY_SEARCH, binding.queryInput.text.toString())
     }
 }
 

@@ -6,17 +6,15 @@
     android:layout_height="match_parent"
     android:background="?attr/backgroundColor"
     android:orientation="vertical"
-    tools:context=".search.ui.SearchActivity">
+    tools:context=".search.ui.SearchFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/arrowBack"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvSearchHeader"
+        style="@style/Header"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/arrow_back"
-        app:navigationIconTint="?attr/colorPrimaryVariant"
-        app:title="@string/search"
-        app:titleTextAppearance="@style/Header"
-        app:titleTextColor="?attr/colorPrimaryVariant" />
+        android:layout_marginBottom="@dimen/dimension_16dp"
+        android:text="@string/search" />
 
     <FrameLayout
         style="@style/SearchBackground"
