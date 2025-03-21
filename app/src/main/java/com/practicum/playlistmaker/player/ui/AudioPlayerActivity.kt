@@ -13,11 +13,11 @@ import com.practicum.playlistmaker.search.domain.model.Tracks
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-const val KEY_TRACK_TAP = "TRACK"
 
 class AudioPlayerActivity : AppCompatActivity() {
 
     companion object {
+        const val KEY_TRACK_TAP = "TRACK"
         const val RADIUS_IMAGE = 8.0f
     }
 
@@ -52,7 +52,9 @@ class AudioPlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.pausePlayer()
+        if (!isChangingConfigurations) {
+            viewModel.pausePlayer()
+        }
     }
 
     override fun onDestroy() {

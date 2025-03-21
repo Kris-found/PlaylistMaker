@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/backgroundColor"
     android:orientation="vertical"
-    tools:context=".settings.ui.SettingsActivity">
+    tools:context=".settings.ui.SettingsFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/arrowBack"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvHeader"
+        style="@style/Header"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/arrow_back"
-        app:navigationIconTint="?attr/colorPrimaryVariant"
-        app:title="@string/settings"
-        app:titleTextAppearance="@style/Header"
-        app:titleTextColor="?attr/colorPrimaryVariant" />
+        android:layout_marginBottom="40dp"
+        android:text="@string/settings" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switchTheme"
