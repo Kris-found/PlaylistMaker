@@ -1,13 +1,16 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="head_text_size">22sp</dimen>
-    <dimen name="main_horizontal_padding">16dp</dimen>
-    <dimen name="button_padding">16dp</dimen>
-    <dimen name="icon_padding">8dp</dimen>
-    <dimen name="button_radius">16dp</dimen>
-    <dimen name="settings_text_size">16sp</dimen>
+    <dimen name="dimension_16dp">16dp</dimen>
+    <dimen name="dimension_8dp">8dp</dimen>
+    <dimen name="text_size_16sp">16sp</dimen>
     <dimen name="settings_lists_padding">21dp</dimen>
     <dimen name="size_for_progress_bar">44dp</dimen>
     <dimen name="player_like_and_add_icon">51dp</dimen>
     <dimen name="play_or_pause_btn">100dp</dimen>
+    <dimen name="dimension_102dp">102dp</dimen>
+    <dimen name="dimension_24dp">24dp</dimen>
+    <dimen name="dimension_4dp">4dp</dimen>
+    <dimen name="dimension_20dp">20dp</dimen>
+    <dimen name="dimension_12dp">12dp</dimen>
 </resources>
