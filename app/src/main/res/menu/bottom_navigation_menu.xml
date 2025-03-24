@@ -3,7 +3,6 @@
     <item
         android:id="@+id/searchFragment"
         android:icon="@drawable/search_vector"
-
         android:title="Поиск" />
 
     <item
