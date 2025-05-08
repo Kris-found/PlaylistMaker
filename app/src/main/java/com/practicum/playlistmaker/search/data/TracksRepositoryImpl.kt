@@ -9,6 +9,8 @@ import com.practicum.playlistmaker.search.data.network.NetworkClient
 import com.practicum.playlistmaker.search.domain.TracksRepository
 import com.practicum.playlistmaker.search.domain.model.Tracks
 import com.practicum.playlistmaker.search.history.data.SearchHistoryRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class TracksRepositoryImpl(
     private val networkClient: NetworkClient,
@@ -20,21 +22,24 @@ class TracksRepositoryImpl(
         const val ERROR = "Error"
     }
 
-    override fun searchTracks(expression: String): Resource<List<Tracks>> {
+    override fun searchTracks(expression: String): Flow<Resource<List<Tracks>>> = flow {
         val response = networkClient.doRequest(TracksSearchRequest(expression))
-        return when (response.resultCode) {
+        when (response.resultCode) {
             200 -> {
-                Resource.Success((response as TracksSearchResponse).results.map {
-                    it.toDomain()
-                })
+                with(response as TracksSearchResponse) {
+                    val data = results.map {
+                        it.toDomain()
+                    }
+                    emit(Resource.Success(data))
+                }
             }
 
             -1 -> {
-                Resource.Error(NO_INTERNET_CONNECTION)
+                emit(Resource.Error(NO_INTERNET_CONNECTION))
             }
 
             else -> {
-                Resource.Error("$ERROR: ${response.resultCode}")
+                emit(Resource.Error("$ERROR: ${response.resultCode}"))
             }
         }
     }

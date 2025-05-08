@@ -5,20 +5,13 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.practicum.playlistmaker.search.data.dto.Response
 import com.practicum.playlistmaker.search.data.dto.TracksSearchRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class RetrofitNetworkClientImpl(private val iTunesService: ITunesSearchAPI,
                                 private val context: Context) : NetworkClient {
 
-//    private val iTunesBaseUrl = "https://itunes.apple.com"
-//
-//    private val retrofit = Retrofit.Builder()
-//        .baseUrl(iTunesBaseUrl)
-//        .addConverterFactory(GsonConverterFactory.create())
-//        .build()
-//
-//    private val iTunesService = retrofit.create(ITunesSearchAPI::class.java)
-
-    override fun doRequest(dto: Any): Response {
+    override suspend fun doRequest(dto: Any): Response {
 
         if (!isConnected()) {
             return Response().apply { resultCode = -1 }
@@ -28,13 +21,15 @@ class RetrofitNetworkClientImpl(private val iTunesService: ITunesSearchAPI,
             return Response().apply { resultCode = 400 }
         }
 
-        val resp = iTunesService.search(dto.expression).execute()
-        val body = resp.body()
-
-        return if (body != null) {
-            body.apply { resultCode = resp.code() }
-        } else {
-            Response().apply { resultCode = resp.code() }
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = iTunesService.search(dto.expression)
+                response.apply {
+                    resultCode = 200
+                }
+            } catch (e: Throwable) {
+                Response().apply { resultCode = 500 }
+            }
         }
     }
 
