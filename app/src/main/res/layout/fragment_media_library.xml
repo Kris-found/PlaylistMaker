@@ -8,17 +8,15 @@
     android:background="?attr/backgroundColor"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context=".library.ui.MediaLibraryActivity">
+    tools:context=".library.ui.MediaLibraryFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/arrowBack"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvHeader"
+        style="@style/Header"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/arrow_back"
-        app:navigationIconTint="?attr/colorPrimaryVariant"
-        app:title="@string/media_library"
-        app:titleTextAppearance="@style/Header"
-        app:titleTextColor="?attr/colorPrimaryVariant" />
+        android:layout_marginBottom="@dimen/dimension_16dp"
+        android:text="@string/media_library" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
@@ -27,8 +25,8 @@
         android:layout_marginHorizontal="@dimen/dimension_16dp"
         android:background="?attr/colorPrimary"
         app:tabIndicatorColor="?attr/colorPrimaryVariant"
-        app:tabTextColor="?attr/colorPrimaryVariant"
-        app:tabIndicatorFullWidth="true" />
+        app:tabIndicatorFullWidth="true"
+        app:tabTextColor="?attr/colorPrimaryVariant" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
