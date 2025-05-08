@@ -1,12 +1,14 @@
 package com.practicum.playlistmaker.player.ui
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.player.domain.AudioPlayerInteractor
 import com.practicum.playlistmaker.player.model.AudioPlayerState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class AudioPlayerViewModel(
     url: String,
@@ -17,10 +19,11 @@ class AudioPlayerViewModel(
         const val DELAY_MILLIS = 300L
     }
 
+    private var timerJob: Job? = null
+    private var isTrackCompleted = false
+
     private val playerStateLiveData = MutableLiveData<AudioPlayerState>()
     fun getPlayerState(): LiveData<AudioPlayerState> = playerStateLiveData
-
-    private var handler = Handler(Looper.getMainLooper())
 
     init {
         preparePlayer(url)
@@ -33,21 +36,22 @@ class AudioPlayerViewModel(
                 playerStateLiveData.postValue(AudioPlayerState.Prepared)
             },
             onCompletion = {
-                handler.removeCallbacks(trackTimerUpdater())
+                isTrackCompleted = true
+                timerJob?.cancel()
                 playerStateLiveData.postValue(AudioPlayerState.Prepared)
             }
         )
     }
 
-    private fun trackTimerUpdater() = object : Runnable {
-        override fun run() {
-            if (playerInteractor.isPlaying()) {
+    private fun trackTimerUpdater() {
+        timerJob = viewModelScope.launch {
+            while (playerInteractor.isPlaying()) {
                 playerStateLiveData.postValue(
                     AudioPlayerState.Playing(
                         playerInteractor.getCurrentPosition()
                     )
                 )
-                handler.postDelayed(this, DELAY_MILLIS)
+                delay(DELAY_MILLIS)
             }
         }
     }
@@ -55,30 +59,37 @@ class AudioPlayerViewModel(
     fun playbackControl() {
         playerInteractor.playbackControl(
             onStarted = {
-                handler.post(trackTimerUpdater())
+                trackTimerUpdater()
             },
             onPaused = {
-                playerStateLiveData.postValue(
-                    AudioPlayerState.Paused(
-                        playerInteractor.getCurrentPosition()
-                    )
-                )
-                handler.removeCallbacks(trackTimerUpdater())
+                pausePlayer()
             }
         )
     }
 
-    fun pausePlayer() {
-        playerInteractor.pause()
-        playerStateLiveData.postValue(
+    private fun pausePlayer() {
+        pauseAndPostState(
             AudioPlayerState.Paused(
                 playerInteractor.getCurrentPosition()
             )
         )
     }
 
+    fun stopPlayback() {
+        pauseAndPostState(
+            AudioPlayerState.Stopped
+        )
+    }
+
+    private fun pauseAndPostState(state: AudioPlayerState) {
+        timerJob?.cancel()
+        playerInteractor.pause()
+        playerStateLiveData.postValue(state)
+    }
+
     fun release() {
-        handler.removeCallbacks(trackTimerUpdater())
+        timerJob?.cancel()
+        timerJob = null
         playerInteractor.release()
     }
 }

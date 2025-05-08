@@ -8,4 +8,6 @@ sealed class AudioPlayerState {
 
     data class Paused(val lastPosition: String) : AudioPlayerState()
 
+    object Stopped : AudioPlayerState()
+
 }
