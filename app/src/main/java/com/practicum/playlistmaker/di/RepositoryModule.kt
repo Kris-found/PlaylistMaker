@@ -1,5 +1,7 @@
 package com.practicum.playlistmaker.di
 
+import com.practicum.playlistmaker.library.data.FavoriteTracksRepositoryImpl
+import com.practicum.playlistmaker.library.domain.FavoriteTracksRepository
 import com.practicum.playlistmaker.player.data.AudioPlayerRepositoryImpl
 import com.practicum.playlistmaker.player.domain.AudioPlayerRepository
 import com.practicum.playlistmaker.search.data.TracksRepositoryImpl
@@ -15,7 +17,7 @@ import org.koin.dsl.module
 val repositoryModule = module {
 
     single<TracksRepository> {
-        TracksRepositoryImpl(get(), get())
+        TracksRepositoryImpl(get(), get(), get())
     }
 
     factory<AudioPlayerRepository> {
@@ -28,6 +30,10 @@ val repositoryModule = module {
 
     single<ExternalNavigator> {
         ExternalNavigatorImpl(androidContext())
+    }
+
+    single<FavoriteTracksRepository> {
+        FavoriteTracksRepositoryImpl(get())
     }
 
 }

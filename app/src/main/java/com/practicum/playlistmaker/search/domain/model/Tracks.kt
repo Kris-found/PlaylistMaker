@@ -15,6 +15,7 @@ data class Tracks(
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String,
+    val isFavorite: Boolean,
 ) : Serializable {
     val formattedTrackTime: String
         get() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)

@@ -3,6 +3,7 @@ package com.practicum.playlistmaker.search.data
 import com.practicum.playlistmaker.Utils.Resource
 import com.practicum.playlistmaker.Utils.toDomain
 import com.practicum.playlistmaker.Utils.toDto
+import com.practicum.playlistmaker.library.data.db.AppDatabase
 import com.practicum.playlistmaker.search.data.dto.TracksSearchRequest
 import com.practicum.playlistmaker.search.data.dto.TracksSearchResponse
 import com.practicum.playlistmaker.search.data.network.NetworkClient
@@ -14,7 +15,8 @@ import kotlinx.coroutines.flow.flow
 
 class TracksRepositoryImpl(
     private val networkClient: NetworkClient,
-    private val searchHistoryRepository: SearchHistoryRepository
+    private val searchHistoryRepository: SearchHistoryRepository,
+    private val appDatabase: AppDatabase,
 ) : TracksRepository {
 
     companion object {
@@ -27,9 +29,13 @@ class TracksRepositoryImpl(
         when (response.resultCode) {
             200 -> {
                 with(response as TracksSearchResponse) {
+                    val favoritesTracks = appDatabase.trackDao().getTracksId()
                     val data = results.map {
                         it.toDomain()
                     }
+                    data.filter {
+                        it.trackId in favoritesTracks
+                    }.map { it.copy(isFavorite = true) }
                     emit(Resource.Success(data))
                 }
             }
@@ -49,9 +55,16 @@ class TracksRepositoryImpl(
         searchHistoryRepository.saveTrackToHistory(ArrayList(dtoTracks))
     }
 
-    override fun getHistoryTrack(): ArrayList<Tracks> {
+    override fun getHistoryTrack(): Flow<ArrayList<Tracks>> = flow {
         val dtoTracks = searchHistoryRepository.getHistoryTrack()
-        return ArrayList(dtoTracks.map { it.toDomain() })
+        val favoritesTracks = appDatabase.trackDao().getTracksId()
+
+        val tracks = dtoTracks.map { it.toDomain() }
+            tracks.filter {
+                it.trackId in favoritesTracks
+            }.map { it.copy(isFavorite = true) }
+
+        emit(ArrayList(tracks))
     }
 
     override fun addTrackToHistory(track: Tracks) {
