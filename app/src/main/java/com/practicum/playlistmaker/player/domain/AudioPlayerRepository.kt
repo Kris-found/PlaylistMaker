@@ -17,4 +17,5 @@ interface AudioPlayerRepository {
     fun releasePlayer()
     fun getCurrentPosition(): Int
     fun isPlaying(): Boolean
+
 }

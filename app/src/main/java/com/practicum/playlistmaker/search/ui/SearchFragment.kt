@@ -102,7 +102,7 @@ class SearchFragment : Fragment() {
 
                 if (binding.queryInput.hasFocus() && s?.isEmpty() == true) {
                     binding.progressBar.isVisible = false
-                    viewModel.removeCallback()
+                    viewModel.searchJobCancel()
                     viewModel.currentRequestId++
                     viewModel.setHistoryTrackList()
                 } else {

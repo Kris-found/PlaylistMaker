@@ -1,14 +1,16 @@
 package com.practicum.playlistmaker.search.ui
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.Utils.SingleEventLiveData
 import com.practicum.playlistmaker.search.domain.TracksInteractor
 import com.practicum.playlistmaker.search.domain.model.SearchScreenState
 import com.practicum.playlistmaker.search.domain.model.Tracks
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TracksSearchViewModel(
     private val tracksInteractor: TracksInteractor
@@ -21,14 +23,9 @@ class TracksSearchViewModel(
     }
 
     var currentRequestId: Int = 0
-    private var currentQuery = ""
+    private var latestQuery: String? = null
     private var isClickAllowed = true
-
-    private val searchRunnable = Runnable {
-        makeSearch(currentQuery)
-    }
-
-    private val handler = Handler(Looper.getMainLooper())
+    private var searchJob: Job? = null
 
     private val screenStateLiveData = MutableLiveData<SearchScreenState>()
     fun getScreenState(): LiveData<SearchScreenState> = screenStateLiveData
@@ -65,31 +62,42 @@ class TracksSearchViewModel(
 
             screenStateLiveData.postValue(SearchScreenState.Loading)
 
-            val consumer = object : TracksInteractor.TracksConsumer {
-                override fun consume(foundTracks: List<Tracks>?) {
-                    if (requestId != currentRequestId) return
-                    if (foundTracks.isNullOrEmpty()) {
-                        screenStateLiveData.postValue(SearchScreenState.NothingFound)
-                    } else {
-                        screenStateLiveData.postValue(
-                            SearchScreenState.Success(foundTracks)
-                        )
-                    }
-                }
+            viewModelScope.launch {
+                tracksInteractor
+                    .searchTracks(query)
+                    .collect { pair ->
+                        val foundTracks = pair.first
+                        val errorMessage = pair.second
 
-                override fun onError(errorMessage: String?) {
-                    if (requestId != currentRequestId) return
-                    screenStateLiveData.postValue(SearchScreenState.NoConnection)
-                }
+                        when {
+                            requestId != currentRequestId -> return@collect
+
+                            errorMessage != null -> screenStateLiveData.postValue(
+                                SearchScreenState.NoConnection
+                            )
+
+                            foundTracks.isNullOrEmpty() -> screenStateLiveData.postValue(
+                                SearchScreenState.NothingFound
+                            )
+
+                            else -> screenStateLiveData.postValue(
+                                SearchScreenState.Success(foundTracks)
+                            )
+                        }
+                    }
             }
-            tracksInteractor.searchTracks(query, consumer)
         }
     }
 
     fun searchDebounce(query: String) {
-        this.currentQuery = query
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY_IN_SECONDS)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            if (latestQuery != query) {
+                latestQuery = query
+                delay(SEARCH_DEBOUNCE_DELAY_IN_SECONDS)
+                makeSearch(query)
+            }
+        }
     }
 
     fun clickDebounce(track: Tracks) {
@@ -97,16 +105,14 @@ class TracksSearchViewModel(
             isClickAllowed = false
             addTrackToHistory(track)
             clickDebounceLiveData.value = track
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY_IN_SECONDS)
+            viewModelScope.launch {
+                delay(CLICK_DEBOUNCE_DELAY_IN_SECONDS)
+                isClickAllowed = true
+            }
         }
     }
 
-    fun removeCallback() {
-        handler.removeCallbacks(searchRunnable)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        handler.removeCallbacksAndMessages(null)
+    fun searchJobCancel() {
+        searchJob?.cancel()
     }
 }

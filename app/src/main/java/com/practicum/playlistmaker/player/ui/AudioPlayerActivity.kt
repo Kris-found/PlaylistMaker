@@ -53,7 +53,7 @@ class AudioPlayerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (!isChangingConfigurations) {
-            viewModel.pausePlayer()
+            viewModel.stopPlayback()
         }
     }
 
@@ -110,6 +110,10 @@ class AudioPlayerActivity : AppCompatActivity() {
             is AudioPlayerState.Paused -> {
                 binding.ibPlayButton.setImageResource(R.drawable.play_button)
                 binding.tvTrackTime.text = state.lastPosition
+            }
+
+            is AudioPlayerState.Stopped -> {
+                binding.ibPlayButton.setImageResource(R.drawable.play_button)
             }
         }
     }
