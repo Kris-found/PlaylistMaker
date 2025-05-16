@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.search.ui
+package com.practicum.playlistmaker.search.presentation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,20 +34,27 @@ class TracksSearchViewModel(
     fun getClickDebounce(): LiveData<Tracks> = clickDebounceLiveData
 
     init {
-        setHistoryTrackList()
+        viewModelScope.launch {
+            setHistoryTrackList()
+        }
     }
 
     fun clearHistory() {
         tracksInteractor.clearHistory()
-        setHistoryTrackList()
+        viewModelScope.launch {
+            setHistoryTrackList()
+        }
     }
 
     fun setHistoryTrackList() {
-        val historyTrackList = tracksInteractor.getHistoryTrack()
-        screenStateLiveData.postValue(
-            if (historyTrackList.isEmpty()) SearchScreenState.EmptyHistory else
-                SearchScreenState.HistoryContent(historyTrackList)
-        )
+        viewModelScope.launch {
+            tracksInteractor.getHistoryTrack().collect {
+                screenStateLiveData.postValue(
+                    if (it.isEmpty()) SearchScreenState.EmptyHistory else
+                        SearchScreenState.HistoryContent(it)
+                )
+            }
+        }
     }
 
     private fun addTrackToHistory(track: Tracks) {

@@ -25,7 +25,7 @@ class TracksInteractorImpl(private val repository: TracksRepository) : TracksInt
         repository.saveTrackToHistory(tracks)
     }
 
-    override fun getHistoryTrack(): ArrayList<Tracks> {
+    override fun getHistoryTrack(): Flow<ArrayList<Tracks>> {
         return repository.getHistoryTrack()
     }
 
