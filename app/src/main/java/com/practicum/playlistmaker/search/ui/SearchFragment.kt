@@ -1,7 +1,6 @@
 package com.practicum.playlistmaker.search.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,10 +10,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
-import com.practicum.playlistmaker.player.ui.AudioPlayerActivity
+import com.practicum.playlistmaker.player.ui.AudioPlayerFragment
 import com.practicum.playlistmaker.search.domain.model.SearchScreenState
 import com.practicum.playlistmaker.search.domain.model.Tracks
 import com.practicum.playlistmaker.search.presentation.TracksSearchViewModel
@@ -35,6 +36,7 @@ class SearchFragment : Fragment() {
     private val trackList = ArrayList<Tracks>()
     private var savedQuery = EMPTY_TEXT
     private var shouldUpdateHistory = false
+    private var queryText: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +49,10 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.queryInput.doAfterTextChanged {
+            queryText = it.toString()
+        }
 
         searchAdapter = TrackAdapter(ArrayList()) {
             viewModel.clickDebounce(it)
@@ -138,11 +144,13 @@ class SearchFragment : Fragment() {
     private fun onTrackClickEvents() {
         viewModel.getClickDebounce().observe(viewLifecycleOwner) { track ->
 
-            val audioPlayerIntent =
-                Intent(requireContext(), AudioPlayerActivity::class.java).apply {
-                    putExtra(AudioPlayerActivity.KEY_TRACK_TAP, track)
-                }
-            startActivity(audioPlayerIntent)
+            val bundle = Bundle().apply {
+                putSerializable(AudioPlayerFragment.KEY_TRACK_TAP, track)
+            }
+            findNavController().navigate(
+                R.id.action_searchFragment_to_audioPlayerFragment,
+                bundle
+            )
 
             shouldUpdateHistory = true
         }
@@ -221,7 +229,7 @@ class SearchFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(KEY_SEARCH, binding.queryInput.text.toString())
+        outState.putString(KEY_SEARCH, queryText)
     }
 }
 
