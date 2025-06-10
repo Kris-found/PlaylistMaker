@@ -1,18 +1,21 @@
-package com.practicum.playlistmaker.player.ui
+package com.practicum.playlistmaker.player.presentation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.practicum.playlistmaker.library.domain.FavoriteTracksInteractor
 import com.practicum.playlistmaker.player.domain.AudioPlayerInteractor
 import com.practicum.playlistmaker.player.model.AudioPlayerState
+import com.practicum.playlistmaker.search.domain.model.Tracks
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AudioPlayerViewModel(
-    url: String,
+    val track: Tracks,
     private val playerInteractor: AudioPlayerInteractor,
+    private val favoriteInteractor: FavoriteTracksInteractor,
 ) : ViewModel() {
 
     companion object {
@@ -25,8 +28,16 @@ class AudioPlayerViewModel(
     private val playerStateLiveData = MutableLiveData<AudioPlayerState>()
     fun getPlayerState(): LiveData<AudioPlayerState> = playerStateLiveData
 
+    private val isFavoriteTrackLiveData = MutableLiveData<Boolean>()
+    fun getIsFavoriteTrackState(): LiveData<Boolean> = isFavoriteTrackLiveData
+
     init {
-        preparePlayer(url)
+        preparePlayer(track.previewUrl)
+        viewModelScope.launch {
+            favoriteInteractor.isTrackFavorite(track).collect {
+                isFavoriteTrackLiveData.value = it
+            }
+        }
     }
 
     private fun preparePlayer(previewUrl: String) {
@@ -43,6 +54,32 @@ class AudioPlayerViewModel(
         )
     }
 
+    fun playbackControl() {
+        playerInteractor.playbackControl(
+            onStarted = {
+                trackTimerUpdater()
+            },
+            onPaused = {
+                pausePlayer()
+            }
+        )
+    }
+
+    fun onFavoriteClicked() {
+        viewModelScope.launch {
+            val isFavorite = isFavoriteTrackLiveData.value ?: false
+
+            if (!isFavorite) {
+                favoriteInteractor.addTrackToFavorites(track)
+            } else {
+                favoriteInteractor.removeTrackFromFavorites(track)
+            }
+
+            isFavoriteTrackLiveData.value = !isFavorite
+        }
+    }
+
+
     private fun trackTimerUpdater() {
         timerJob = viewModelScope.launch {
             while (playerInteractor.isPlaying()) {
@@ -54,17 +91,6 @@ class AudioPlayerViewModel(
                 delay(DELAY_MILLIS)
             }
         }
-    }
-
-    fun playbackControl() {
-        playerInteractor.playbackControl(
-            onStarted = {
-                trackTimerUpdater()
-            },
-            onPaused = {
-                pausePlayer()
-            }
-        )
     }
 
     private fun pausePlayer() {

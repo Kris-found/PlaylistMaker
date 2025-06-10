@@ -8,7 +8,7 @@ interface TracksRepository {
     fun searchTracks(expression: String): Flow<Resource<List<Tracks>>>
 
     fun saveTrackToHistory(tracks: ArrayList<Tracks>)
-    fun getHistoryTrack(): ArrayList<Tracks>
+    fun getHistoryTrack(): Flow<ArrayList<Tracks>>
     fun addTrackToHistory(track: Tracks)
     fun clearHistory()
 }

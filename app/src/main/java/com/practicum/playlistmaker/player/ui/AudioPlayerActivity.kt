@@ -9,6 +9,7 @@ import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.Utils.dpToPx
 import com.practicum.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.practicum.playlistmaker.player.model.AudioPlayerState
+import com.practicum.playlistmaker.player.presentation.AudioPlayerViewModel
 import com.practicum.playlistmaker.search.domain.model.Tracks
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -24,8 +25,10 @@ class AudioPlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAudioPlayerBinding
     private var songUrl: String = ""
 
-    private val viewModel by viewModel<AudioPlayerViewModel> {
-        parametersOf(songUrl)
+    private lateinit var track: Tracks
+
+    private val viewModelPlaer by viewModel<AudioPlayerViewModel> {
+        parametersOf(track)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +36,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         binding = ActivityAudioPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val track = intent.getSerializableExtra(KEY_TRACK_TAP) as Tracks?
+        track = intent.getSerializableExtra(KEY_TRACK_TAP) as Tracks
 
         if (track != null) bindTrackData(track) else finish()
 
@@ -42,25 +45,33 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
 
         binding.ibPlayButton.setOnClickListener {
-            viewModel.playbackControl()
+            viewModelPlaer.playbackControl()
         }
 
-        viewModel.getPlayerState().observe(this) {
-            render(it)
+        viewModelPlaer.getPlayerState().observe(this) {
+            renderPlayer(it)
+        }
+
+        binding.ibLikeTrack.setOnClickListener {
+            viewModelPlaer.onFavoriteClicked()
+        }
+
+        viewModelPlaer.getIsFavoriteTrackState().observe(this) {
+            renderLikeButton(it)
         }
     }
 
     override fun onPause() {
         super.onPause()
         if (!isChangingConfigurations) {
-            viewModel.stopPlayback()
+            viewModelPlaer.stopPlayback()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         if (isFinishing) {
-            viewModel.release()
+            viewModelPlaer.release()
         }
     }
 
@@ -93,7 +104,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun render(state: AudioPlayerState) {
+    private fun renderPlayer(state: AudioPlayerState) {
         when (state) {
 
             is AudioPlayerState.Prepared -> {
@@ -115,6 +126,14 @@ class AudioPlayerActivity : AppCompatActivity() {
             is AudioPlayerState.Stopped -> {
                 binding.ibPlayButton.setImageResource(R.drawable.play_button)
             }
+        }
+    }
+
+    private fun renderLikeButton(active: Boolean) {
+        if (active) {
+            binding.ibLikeTrack.setImageResource(R.drawable.active_like_button)
+        } else {
+            binding.ibLikeTrack.setImageResource(R.drawable.like_button)
         }
     }
 }
