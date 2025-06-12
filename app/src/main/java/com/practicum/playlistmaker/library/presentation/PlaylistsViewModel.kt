@@ -24,13 +24,14 @@ class PlaylistsViewModel(private val interactor: PlaylistInteractor) : ViewModel
         }
     }
 
-    fun createPlaylist(name: String, description: String, uri: String) {
+    fun createPlaylist(name: String, description: String) {
+        val imageUri = _savedImagePath.value.orEmpty()
         viewModelScope.launch {
             interactor.createPlaylist(
                 Playlist(
                     name = name,
                     description = description,
-                    imageUri = uri,
+                    imageUri = imageUri,
                 )
             )
         }

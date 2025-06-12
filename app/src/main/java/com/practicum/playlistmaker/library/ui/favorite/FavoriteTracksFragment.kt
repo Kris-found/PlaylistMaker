@@ -75,7 +75,7 @@ class FavoriteTracksFragment : Fragment() {
 
     private fun onTrackClickEvents(track: Tracks) {
         val bundle = Bundle().apply {
-            putSerializable(AudioPlayerFragment.KEY_TRACK_TAP, track)
+            putParcelable(AudioPlayerFragment.KEY_TRACK_TAP, track)
         }
         findNavController().navigate(
             R.id.action_mediaLibraryFragment_to_audioPlayerFragment,

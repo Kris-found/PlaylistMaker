@@ -145,7 +145,7 @@ class SearchFragment : Fragment() {
         viewModel.getClickDebounce().observe(viewLifecycleOwner) { track ->
 
             val bundle = Bundle().apply {
-                putSerializable(AudioPlayerFragment.KEY_TRACK_TAP, track)
+                putParcelable(AudioPlayerFragment.KEY_TRACK_TAP, track)
             }
             findNavController().navigate(
                 R.id.action_searchFragment_to_audioPlayerFragment,

@@ -81,6 +81,6 @@ class PlaylistRepositoryImpl(
     }
 
     companion object {
-        const val CHILD_FILE_PATH = "Album"
+        private const val CHILD_FILE_PATH = "Album"
     }
 }

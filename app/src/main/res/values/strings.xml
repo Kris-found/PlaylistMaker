@@ -51,6 +51,13 @@
 
     <string name="added_to_playlist">Добавлено в плейлист %s</string>
     <string name="already_added_to_playlist">Трек уже добавлен в плейлист %s</string>
-
+    
+    <plurals name="track_count">
+        <item quantity="zero">%d треков</item>
+        <item quantity="one">%d трек</item>
+        <item quantity="few">%d трека</item>
+        <item quantity="many">%d треков</item>
+        <item quantity="other">%d треков</item>
+    </plurals>
 
 </resources>

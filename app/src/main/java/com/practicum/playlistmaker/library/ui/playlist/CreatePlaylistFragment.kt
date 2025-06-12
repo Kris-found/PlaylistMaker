@@ -12,7 +12,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.addTextChangedListener
@@ -50,7 +50,6 @@ class CreatePlaylistFragment : Fragment() {
 
         viewModel.savedImagePath.observe(viewLifecycleOwner) { path ->
             path?.let {
-                savedImagePath = it
                 binding.ivCoverAlbum.setImageURI(Uri.fromFile(File(it)))
             }
         }
@@ -69,11 +68,9 @@ class CreatePlaylistFragment : Fragment() {
             onBackPressed()
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
                 onBackPressed()
-            }
-        })
+        }
 
         binding.ivCoverAlbum.setOnClickListener {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -82,8 +79,7 @@ class CreatePlaylistFragment : Fragment() {
         binding.createPlaylist.setOnClickListener {
             viewModel.createPlaylist(
                 name = binding.editTextName.text.toString(),
-                description = binding.editTextDescription.text.toString(),
-                uri = savedImagePath.orEmpty()
+                description = binding.editTextDescription.text.toString()
             )
 
             showPlaylistCreatedSnackbar(name = binding.editTextName.text.toString())
@@ -113,10 +109,12 @@ class CreatePlaylistFragment : Fragment() {
     }
 
     private fun onBackPressed() {
+
         if (!binding.editTextName.text.isNullOrEmpty() ||
             !binding.editTextDescription.text.isNullOrEmpty() ||
             !savedImagePath.isNullOrEmpty()
         ) {
+            Log.d("BackPressDebug", "isAdded: $isAdded, isResumed: $isResumed, context = $context")
             MaterialAlertDialogBuilder(requireContext(), R.style.PlaylistAlertDialog)
                 .setTitle(getString(R.string.dialog_title))
                 .setMessage(getString(R.string.dialog_message))

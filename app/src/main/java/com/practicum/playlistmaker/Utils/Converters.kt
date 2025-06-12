@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker.Utils
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.TypedValue
 import com.practicum.playlistmaker.library.data.db.entity.PlaylistEntity
 import com.practicum.playlistmaker.library.data.db.entity.TrackEntity
@@ -8,6 +9,7 @@ import com.practicum.playlistmaker.library.data.db.entity.TracksFavoriteEntity
 import com.practicum.playlistmaker.library.domain.playlist.model.Playlist
 import com.practicum.playlistmaker.search.data.dto.TracksDto
 import com.practicum.playlistmaker.search.domain.model.Tracks
+import java.util.Locale
 
 fun dpToPx(dp: Float, context: Context): Int {
     return TypedValue.applyDimension(
@@ -15,14 +17,10 @@ fun dpToPx(dp: Float, context: Context): Int {
     ).toInt()
 }
 
-fun formattedTracksCount(count: Int): String {
-    val ending = when {
-        count % 10 == 1 -> "трек"
-        count % 10 in 2..4 -> "трека"
-        count % 100 in 11..14 -> "треков"
-        else -> "треков"
-    }
-    return "$count $ending"
+fun getLocalizedContext(base: Context, locale: Locale): Context {
+    val config = Configuration(base.resources.configuration)
+    config.setLocale(locale)
+    return base.createConfigurationContext(config)
 }
 
 fun Tracks.toDto(): TracksDto = TracksDto(

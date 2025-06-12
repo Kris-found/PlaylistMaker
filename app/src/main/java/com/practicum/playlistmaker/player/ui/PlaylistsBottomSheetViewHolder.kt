@@ -6,16 +6,24 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.Utils.dpToPx
-import com.practicum.playlistmaker.Utils.formattedTracksCount
+import com.practicum.playlistmaker.Utils.getLocalizedContext
 import com.practicum.playlistmaker.databinding.PlaylistViewBottomSheetBinding
 import com.practicum.playlistmaker.library.domain.playlist.model.Playlist
+import java.util.Locale
 
 class PlaylistsBottomSheetViewHolder(private val binding: PlaylistViewBottomSheetBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: Playlist, clickListener: PlaylistsBottomSheetAdapter.PlaylistClickListener) {
+
+        val contextRu = getLocalizedContext(binding.root.context, Locale("ru"))
+
         binding.tvTitle.text = item.name
-        binding.countTracks.text = formattedTracksCount(item.tracksCount)
+        binding.countTracks.text = contextRu.resources.getQuantityString(
+            R.plurals.track_count,
+            item.tracksCount,
+            item.tracksCount
+        )
 
         binding.root.setOnClickListener {
             val pos = adapterPosition

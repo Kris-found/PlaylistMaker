@@ -32,7 +32,10 @@ class AudioPlayerFragment : Fragment() {
 
     private lateinit var binding: FragmentAudioPlayerBinding
     private lateinit var playlistsAdapter: PlaylistsBottomSheetAdapter
-    private lateinit var track: Tracks
+
+    private val track by lazy {
+        requireArguments().getParcelable<Tracks>(KEY_TRACK_TAP) ?: error("Трек не найден")
+    }
 
     private var songUrl: String = ""
 
@@ -52,9 +55,7 @@ class AudioPlayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        track = arguments?.getSerializable(KEY_TRACK_TAP) as Tracks
-
-        track?.let { bindTrackData(it) }
+        bindTrackData(track)
 
         playlistsAdapter = PlaylistsBottomSheetAdapter {
             viewModelPlayer.addTrackToPlaylist(track, it)
