@@ -1,11 +1,11 @@
-package com.practicum.playlistmaker.library.domain
+package com.practicum.playlistmaker.library.domain.favorite
 
 import com.practicum.playlistmaker.search.domain.model.Tracks
 import kotlinx.coroutines.flow.Flow
 
 interface FavoriteTracksRepository {
 
-    suspend fun addTrackToFavorites(track:Tracks)
+    suspend fun addTrackToFavorites(track: Tracks)
 
     suspend fun removeTrackFromFavorites(track: Tracks)
 

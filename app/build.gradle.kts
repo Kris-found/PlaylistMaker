@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id ("kotlin-parcelize")
-//    id ("kotlin-kapt")
     alias(libs.plugins.ksp)
 }
 
@@ -66,7 +65,6 @@ dependencies {
 
     val room = "2.7.1"
     implementation("androidx.room:room-runtime:$room")
-//    kapt("androidx.room:room-compiler:$room")
     implementation("androidx.room:room-ktx:$room")
 
     ksp(libs.room.compiler)

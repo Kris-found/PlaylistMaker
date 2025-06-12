@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:drawable="@drawable/ic_add_image"
+        android:gravity="center" />
+    <item
+        android:width="312dp"
+        android:height="312dp"
+        android:gravity="center">
+        <shape android:shape="rectangle">
+            <stroke
+                android:color="@color/aluminium"
+                android:width="1dp"
+                android:dashWidth="35dp"
+                android:dashGap="25dp"/>
+            <corners android:radius="8dp"/>
+        </shape>
+    </item>
+</layer-list>

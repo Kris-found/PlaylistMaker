@@ -9,6 +9,13 @@
         <item name="colorSecondaryVariant">@color/aluminium</item>
         <item name="colorOnSecondary">@color/aluminium</item>
         <item name="android:windowFullscreen">true</item>
+
+        <item name="playlistSnackbarBackground">@color/black_mirage</item>
+        <item name="playlistSnackbarTextColor">@color/white</item>
+
     </style>
+
+    <attr name="playlistSnackbarBackground" format="color" />
+    <attr name="playlistSnackbarTextColor" format="color" />
 
 </resources>

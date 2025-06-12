@@ -8,8 +8,10 @@ import com.practicum.playlistmaker.search.data.dto.TracksSearchRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class RetrofitNetworkClientImpl(private val iTunesService: ITunesSearchAPI,
-                                private val context: Context) : NetworkClient {
+class RetrofitNetworkClientImpl(
+    private val iTunesService: ITunesSearchAPI,
+    private val context: Context
+) : NetworkClient {
 
     override suspend fun doRequest(dto: Any): Response {
 
