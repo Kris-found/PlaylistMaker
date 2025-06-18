@@ -16,7 +16,7 @@ data class TrackEntity(
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String,
-    val timestamp:Long,
+    val timestamp: Long,
 )
 
 const val TRACK_TABLE = "track_table"

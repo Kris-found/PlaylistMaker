@@ -1,16 +1,17 @@
-package com.practicum.playlistmaker.library.ui
+package com.practicum.playlistmaker.library.ui.favorite
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentFavoriteTracksBinding
 import com.practicum.playlistmaker.library.model.FavoriteTracksState
 import com.practicum.playlistmaker.library.presentation.FavoriteTracksViewModel
-import com.practicum.playlistmaker.player.ui.AudioPlayerActivity
+import com.practicum.playlistmaker.player.ui.AudioPlayerFragment
 import com.practicum.playlistmaker.search.domain.model.Tracks
 import com.practicum.playlistmaker.search.ui.TrackAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -22,7 +23,7 @@ class FavoriteTracksFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentFavoriteTracksBinding
-    private lateinit var adapter:TrackAdapter
+    private lateinit var adapter: TrackAdapter
 
     private val viewModel by viewModel<FavoriteTracksViewModel>()
 
@@ -58,12 +59,13 @@ class FavoriteTracksFragment : Fragment() {
     }
 
     private fun render(state: FavoriteTracksState) {
-        when(state) {
+        when (state) {
             is FavoriteTracksState.Content -> {
                 adapter.updateData(ArrayList(state.tracks))
                 binding.rvFavoriteList.isVisible = true
                 binding.placeholderContainer.isVisible = false
             }
+
             FavoriteTracksState.Empty -> {
                 binding.rvFavoriteList.isVisible = false
                 binding.placeholderContainer.isVisible = true
@@ -72,9 +74,12 @@ class FavoriteTracksFragment : Fragment() {
     }
 
     private fun onTrackClickEvents(track: Tracks) {
-        val audioPlayerIntent = Intent(requireContext(), AudioPlayerActivity::class.java).apply {
-            putExtra(AudioPlayerActivity.KEY_TRACK_TAP, track)
+        val bundle = Bundle().apply {
+            putParcelable(AudioPlayerFragment.KEY_TRACK_TAP, track)
         }
-        startActivity(audioPlayerIntent)
+        findNavController().navigate(
+            R.id.action_mediaLibraryFragment_to_audioPlayerFragment,
+            bundle
+        )
     }
 }

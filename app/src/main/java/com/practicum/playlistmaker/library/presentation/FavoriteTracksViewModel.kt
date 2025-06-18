@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.practicum.playlistmaker.library.domain.FavoriteTracksInteractor
+import com.practicum.playlistmaker.library.domain.favorite.FavoriteTracksInteractor
 import com.practicum.playlistmaker.library.model.FavoriteTracksState
 import kotlinx.coroutines.launch
 

@@ -2,7 +2,7 @@ package com.practicum.playlistmaker.search.domain.model
 
 sealed class SearchScreenState {
 
-    data object Loading: SearchScreenState()
+    data object Loading : SearchScreenState()
 
     data class Success(val tracks: List<Tracks>) : SearchScreenState()
 

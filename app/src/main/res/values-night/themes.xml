@@ -10,6 +10,9 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="android:statusBarColor">?attr/colorPrimary</item>
         <item name="android:windowFullscreen">true</item>
+
+        <item name="playlistSnackbarBackground">@color/white</item>
+        <item name="playlistSnackbarTextColor">@color/black_mirage</item>
     </style>
 
     <style name="SearchBackground">
