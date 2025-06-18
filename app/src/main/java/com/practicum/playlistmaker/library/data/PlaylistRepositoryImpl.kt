@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.practicum.playlistmaker.Utils.toPlaylistDomain
 import com.practicum.playlistmaker.Utils.toPlaylistEntity
+import com.practicum.playlistmaker.Utils.toTrackDomain
 import com.practicum.playlistmaker.Utils.toTrackEntity
 import com.practicum.playlistmaker.library.data.db.AppDatabase
 import com.practicum.playlistmaker.library.domain.playlist.PlaylistRepository
@@ -34,8 +35,22 @@ class PlaylistRepositoryImpl(
     }
 
     override suspend fun getPlaylists(): Flow<List<Playlist>> = flow {
-        val playlist = appDatabase.playlistDao().getPlaylists().map { it.toPlaylistDomain() }
+        val playlists = appDatabase.playlistDao().getPlaylists().map { it.toPlaylistDomain() }
+        emit(playlists)
+    }
+
+    override suspend fun getPlaylistById(playlistId: Long): Flow<Playlist> = flow {
+        val playlist = appDatabase.playlistDao().getPlaylistById(playlistId).toPlaylistDomain()
         emit(playlist)
+    }
+
+    override suspend fun getTracksInPlaylist(playlistId: Long): Flow<List<Tracks>> = flow {
+        val tracks = appDatabase.trackDao().getAllTracks()
+            .filter {
+                it.id.toString() in appDatabase.playlistDao().getPlaylistById(playlistId).tracksId
+            }
+            .map { it.toTrackDomain() }
+        emit(tracks)
     }
 
     override suspend fun addTrackToPlaylist(track: Tracks, playlist: Playlist) {
@@ -45,12 +60,54 @@ class PlaylistRepositoryImpl(
             mutableListOf()
         }
 
+        currentTrackId.add(track.trackId)
+
         val updatePlaylistEntity = playlist.toPlaylistEntity().copy(
-            tracksId = gson.toJson(currentTrackId + track.trackId),
+            tracksId = gson.toJson(currentTrackId),
             tracksCount = playlist.tracksCount + 1
         )
         appDatabase.trackDao().insertTrack(track.toTrackEntity())
         appDatabase.playlistDao().updatePlaylist(updatePlaylistEntity)
+    }
+
+    override suspend fun deleteTrackFromPlaylist(playlistId: Long, trackId: Int) {
+        val playlist = appDatabase.playlistDao().getPlaylistById(playlistId)
+        val currentTrackId =
+            gson.fromJson(playlist.tracksId, Array<Int>::class.java).toMutableList()
+
+        currentTrackId.remove(trackId)
+
+        val updatePlaylistEntity = playlist.copy(
+            tracksId = gson.toJson(currentTrackId),
+            tracksCount = currentTrackId.size
+        )
+        appDatabase.playlistDao().updatePlaylist(updatePlaylistEntity)
+        cleanUpTrackFromTable(trackId)
+    }
+
+    override suspend fun cleanUpTrackFromTable(trackId: Int) {
+        val allPlaylists = appDatabase.playlistDao().getPlaylists()
+
+        val allTracksIds = allPlaylists.map {
+            gson.fromJson(it.tracksId, Array<Int>::class.java).toList()
+        }
+        val isUsedInPlaylists = allTracksIds.any {
+            trackId in it
+        }
+
+        if (!isUsedInPlaylists) {
+            val track = appDatabase.trackDao().getTrackById(trackId)
+            if (track != null) appDatabase.trackDao().deleteTrack(track)
+        }
+    }
+
+    override suspend fun deletePlaylist(playlistId: Long) {
+        val playlist = appDatabase.playlistDao().getPlaylistById(playlistId)
+        appDatabase.playlistDao().deletePlaylist(playlist)
+        val tracksId = gson.fromJson(playlist.tracksId, Array<Int>::class.java)
+        tracksId.forEach {
+            cleanUpTrackFromTable(it)
+        }
     }
 
     override suspend fun saveImage(uri: Uri): String? = withContext(Dispatchers.IO) {

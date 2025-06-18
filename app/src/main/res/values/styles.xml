@@ -82,6 +82,13 @@
         <item name="tint">@color/aluminium</item>
     </style>
 
+    <style name="ImageEllipseStyle">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginStart">5dp</item>
+        <item name="android:layout_marginEnd">5dp</item>
+        <item name="android:src">@drawable/ellipse</item>
+    </style>
+
     <style name="PlaceholderActionButton">
         <item name="android:layout_gravity">center</item>
         <item name="android:backgroundTint">?attr/colorPrimaryVariant</item>
@@ -188,13 +195,12 @@
         <item name="android:textFontWeight">500</item>
     </style>
 
-
     <style name="PlaylistAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="buttonBarPositiveButtonStyle">@style/DialogButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/DialogButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogButtonStyle</item>
     </style>
-
-
+    
     <style name="DialogButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:textColor">@color/dark_blue</item>
     </style>
@@ -202,6 +208,27 @@
     <style name="ImageRounded8dpStyle">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="PlaylistNameTitleStyle">
+        <item name="android:fontFamily">@font/ys_display_bold</item>
+        <item name="android:textColor">@color/black_mirage</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="PlaylistDetailsTextStyle">
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">@color/black_mirage</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    
+    <style name="PlaylistDetailsWithEllipsizeStyle" parent="PlaylistDetailsTextStyle">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
     </style>
 
 </resources>

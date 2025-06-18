@@ -5,10 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.practicum.playlistmaker.databinding.SearchTrackViewBinding
 import com.practicum.playlistmaker.search.domain.model.Tracks
+import com.practicum.playlistmaker.search.ui.TrackAdapter.OnLongClickListener
 
 class TrackAdapter(
     private var tracks: ArrayList<Tracks>,
-    private val clickListener: ClickListener
+    private val clickListener: ClickListener,
+    private val longClickListener: OnLongClickListener = OnLongClickListener {},
 ) : RecyclerView.Adapter<TrackViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -21,11 +23,17 @@ class TrackAdapter(
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        holder.bind(tracks[position])
+        val track = tracks[position]
+
+        holder.bind(track)
 
         holder.itemView.setOnClickListener {
-            val track = tracks[position]
             clickListener.onItemClick(track)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            longClickListener.onLongClick(track)
+            true
         }
     }
 
@@ -36,5 +44,9 @@ class TrackAdapter(
 
     fun interface ClickListener {
         fun onItemClick(track: Tracks)
+    }
+
+    fun interface OnLongClickListener {
+        fun onLongClick(track: Tracks)
     }
 }

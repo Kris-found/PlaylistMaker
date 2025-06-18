@@ -6,4 +6,5 @@ interface SharingInteractor {
     fun shareApp(linkApp: String, title: String)
     fun openSupport(emailData: EmailData)
     fun orenTerms(linkTerms: String)
+    fun sharePlaylist(message: String, title: String)
 }

@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.library.ui.playlist
+package com.practicum.playlistmaker.playlist.create.ui
 
 import android.content.Context
 import android.net.Uri
@@ -24,15 +24,15 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentNewPlaylistBinding
-import com.practicum.playlistmaker.library.presentation.PlaylistsViewModel
+import com.practicum.playlistmaker.playlist.create.presentation.CreatePlaylistViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
-class CreatePlaylistFragment : Fragment() {
+open class CreatePlaylistFragment : Fragment() {
 
-    private lateinit var binding: FragmentNewPlaylistBinding
+    lateinit var binding: FragmentNewPlaylistBinding
 
-    private val viewModel by viewModel<PlaylistsViewModel>()
+    open val viewModel by viewModel<CreatePlaylistViewModel>()
 
     private var savedImagePath: String? = null
 
@@ -48,7 +48,7 @@ class CreatePlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.savedImagePath.observe(viewLifecycleOwner) { path ->
+        viewModel.savedImagePath().observe(viewLifecycleOwner) { path ->
             path?.let {
                 binding.ivCoverAlbum.setImageURI(Uri.fromFile(File(it)))
             }
@@ -69,7 +69,7 @@ class CreatePlaylistFragment : Fragment() {
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-                onBackPressed()
+            onBackPressed()
         }
 
         binding.ivCoverAlbum.setOnClickListener {
@@ -114,7 +114,6 @@ class CreatePlaylistFragment : Fragment() {
             !binding.editTextDescription.text.isNullOrEmpty() ||
             !savedImagePath.isNullOrEmpty()
         ) {
-            Log.d("BackPressDebug", "isAdded: $isAdded, isResumed: $isResumed, context = $context")
             MaterialAlertDialogBuilder(requireContext(), R.style.PlaylistAlertDialog)
                 .setTitle(getString(R.string.dialog_title))
                 .setMessage(getString(R.string.dialog_message))

@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.library.ui.playlist
+package com.practicum.playlistmaker.library.ui.playlists
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,8 +10,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentPlaylistBinding
+import com.practicum.playlistmaker.library.domain.playlist.model.Playlist
 import com.practicum.playlistmaker.library.model.PlaylistState
 import com.practicum.playlistmaker.library.presentation.PlaylistsViewModel
+import com.practicum.playlistmaker.playlist.content.ui.PlaylistContentFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistsFragment : Fragment() {
@@ -40,7 +42,9 @@ class PlaylistsFragment : Fragment() {
             clickEventToOpenCreatePlaylist()
         }
 
-        adapter = PlaylistAdapter()
+        adapter = PlaylistAdapter {
+            clickEventToOpenPlaylist(it)
+        }
 
         binding.playlistView.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.playlistView.adapter = adapter
@@ -61,14 +65,22 @@ class PlaylistsFragment : Fragment() {
         findNavController().navigate(R.id.action_mediaLibraryFragment_to_createPlaylistFragment)
     }
 
+    private fun clickEventToOpenPlaylist(playlist: Playlist) {
+        val bundle = Bundle().apply {
+            putLong(PlaylistContentFragment.KEY_PLAYLIST_ID, playlist.id)
+        }
+        findNavController().navigate(
+            R.id.action_mediaLibraryFragment_to_playlistContentFragment,
+            bundle
+        )
+    }
+
     private fun playlistsRender(state: PlaylistState) {
         when (state) {
             is PlaylistState.Content -> {
                 binding.placeholderContainer.isVisible = false
                 binding.playlistView.isVisible = true
-                adapter.submitList(state.playlist) {
-                    binding.playlistView.scrollToPosition(0)
-                }
+                adapter.submitList(state.playlist)
             }
 
             is PlaylistState.Empty -> {
