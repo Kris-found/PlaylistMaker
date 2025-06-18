@@ -110,3 +110,17 @@ fun Tracks.toTrackEntity(): TrackEntity = TrackEntity(
     previewUrl = previewUrl,
     timestamp = System.currentTimeMillis()
 )
+
+fun TrackEntity.toTrackDomain(): Tracks = Tracks(
+    trackId = id,
+    trackName = trackName,
+    artistName = artistName,
+    trackTimeMillis = trackTimeMillis,
+    artworkUrl100 = artworkUrl100,
+    collectionName = collectionName,
+    country = country,
+    releaseDate = releaseDate,
+    primaryGenreName = primaryGenreName,
+    previewUrl = previewUrl,
+    isFavorite = false
+)

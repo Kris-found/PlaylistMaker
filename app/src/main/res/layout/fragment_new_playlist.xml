@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/backgroundColor"
-    tools:context=".library.ui.playlist.CreatePlaylistFragment">
+    tools:context=".playlist.create.ui.CreatePlaylistFragment">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/leftGuidelineIn24Dp"

@@ -14,4 +14,8 @@ class SharingInteractorImpl(private val externalNavigator: ExternalNavigator) : 
     override fun orenTerms(linkTerms: String) {
         externalNavigator.openTermsLink(linkTerms)
     }
+
+    override fun sharePlaylist(message: String, title: String) {
+        externalNavigator.sharePlaylist(message, title)
+    }
 }

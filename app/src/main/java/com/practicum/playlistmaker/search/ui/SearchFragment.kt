@@ -54,9 +54,8 @@ class SearchFragment : Fragment() {
             queryText = it.toString()
         }
 
-        searchAdapter = TrackAdapter(ArrayList()) {
-            viewModel.clickDebounce(it)
-        }
+        searchAdapter = TrackAdapter(ArrayList(),
+            clickListener = { viewModel.clickDebounce(it) })
 
         binding.rvSearchTrackList.adapter = searchAdapter
 

@@ -39,9 +39,8 @@ class FavoriteTracksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = TrackAdapter(ArrayList()) {
-            onTrackClickEvents(it)
-        }
+        adapter = TrackAdapter(ArrayList(),
+            clickListener = { onTrackClickEvents(it) })
 
         binding.rvFavoriteList.adapter = adapter
 

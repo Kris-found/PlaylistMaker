@@ -38,7 +38,6 @@ class AudioPlayerFragment : Fragment() {
     }
 
     private var songUrl: String = ""
-
     private val viewModelPlayer by viewModel<AudioPlayerViewModel> {
         parametersOf(track)
     }
